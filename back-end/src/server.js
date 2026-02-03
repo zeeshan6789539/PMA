@@ -11,10 +11,8 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const ResponseHandler = require('./utils/responseHandler');
 
 // Import routes
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const permissionRoutes = require('./routes/permissionRoutes');
-const roleRoutes = require('./routes/roleRoutes');
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -69,19 +67,15 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/permissions', permissionRoutes);
-app.use('/api/roles', roleRoutes);
+
+
 
 // Root endpoint
 app.get('/', (req, res) => {
   return ResponseHandler.success(res, 'Express Backend API', {
     version: '1.0.0',
     endpoints: {
-      auth: '/api/auth',
-      users: '/api/users',
-      permissions: '/api/permissions',
+
       health: '/health'
     },
     documentation: 'Check the README.md file for API documentation'
