@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push --config=src/config/drizzle.config.js",
+    "db:generate": "drizzle-kit generate --config=src/config/drizzle.config.js",
+    "db:studio": "drizzle-kit studio --config=src/config/drizzle.config.js",
     "db:seed": "node src/database/seeders/index.js"
   },
   "keywords": [
