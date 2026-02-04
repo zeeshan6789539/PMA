@@ -1,23 +1,26 @@
-const { PrismaClient } = require('@prisma/client');
+const { drizzle } = require('drizzle-orm/node-postgres');
+const { Pool } = require('pg');
+const schema = require('../database/schema');
 
-const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
 });
+
+const db = drizzle(pool, { schema });
 
 // Test database connection
 async function testConnection() {
-  try {
-    await prisma.$connect();
-    console.log('✅ Database connected successfully');
-  } catch (error) {
-    console.error('❌ Database connection failed:', error);
-    process.exit(1);
-  }
+  await pool.query('SELECT 1')
+    .then(() => console.log('✅ Database connected successfully'))
+    .catch((error) => {
+      console.error('❌ Database connection failed:', error);
+      process.exit(1);
+    });
 }
 
 // Graceful shutdown
 process.on('beforeExit', async () => {
-  await prisma.$disconnect();
+  await pool.end();
 });
 
-module.exports = { prisma, testConnection }; 
+module.exports = { db, testConnection }; 
