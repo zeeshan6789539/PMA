@@ -1,10 +1,15 @@
-const ResponseHandler = require('../utils/responseHandler');
+import { Request, Response, NextFunction } from 'express';
+import ResponseHandler from '../utils/responseHandler.js';
 
 /**
  * Custom Error Classes
  */
-class AppError extends Error {
-  constructor(message, statusCode) {
+export class AppError extends Error {
+  statusCode: number;
+  status: string;
+  isOperational: boolean;
+
+  constructor(message: string, statusCode: number) {
     super(message);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
@@ -14,27 +19,28 @@ class AppError extends Error {
   }
 }
 
-class ValidationError extends AppError {
-  constructor(message, errors = []) {
+export class ValidationError extends AppError {
+  errors: any[];
+  constructor(message: string, errors: any[] = []) {
     super(message, 400);
     this.errors = errors;
   }
 }
 
-class NotFoundError extends AppError {
-  constructor(message = 'Resource not found') {
+export class NotFoundError extends AppError {
+  constructor(message: string = 'Resource not found') {
     super(message, 404);
   }
 }
 
-class UnauthorizedError extends AppError {
-  constructor(message = 'Unauthorized') {
+export class UnauthorizedError extends AppError {
+  constructor(message: string = 'Unauthorized') {
     super(message, 401);
   }
 }
 
-class ForbiddenError extends AppError {
-  constructor(message = 'Forbidden') {
+export class ForbiddenError extends AppError {
+  constructor(message: string = 'Forbidden') {
     super(message, 403);
   }
 }
@@ -42,7 +48,7 @@ class ForbiddenError extends AppError {
 /**
  * Global Error Handler Middleware
  */
-const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -55,10 +61,10 @@ const errorHandler = (err, req, res, next) => {
     body: req.body,
     params: req.params,
     query: req.query,
-    user: req.user?.id
+    user: (req as any).user?.id
   });
 
-  // Mongoose bad ObjectId
+  // Mongoose bad ObjectId (keeping for compatibility if needed, though they are using Drizzle)
   if (err.name === 'CastError') {
     const message = 'Resource not found';
     error = new NotFoundError(message);
@@ -72,7 +78,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message).join(', ');
+    const message = Object.values(err.errors).map((val: any) => val.message).join(', ');
     error = new ValidationError(message);
   }
 
@@ -109,8 +115,8 @@ const errorHandler = (err, req, res, next) => {
  * Async Handler Wrapper
  * Wraps async route handlers to automatically catch errors
  */
-const asyncHandler = (fn) => {
-  return (req, res, next) => {
+export const asyncHandler = (fn: Function) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
@@ -118,17 +124,6 @@ const asyncHandler = (fn) => {
 /**
  * 404 Handler for undefined routes
  */
-const notFoundHandler = (req, res, next) => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   return ResponseHandler.notFound(res, `Route ${req.originalUrl} not found`);
 };
-
-module.exports = {
-  errorHandler,
-  asyncHandler,
-  notFoundHandler,
-  AppError,
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-  ForbiddenError
-}; 

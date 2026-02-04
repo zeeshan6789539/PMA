@@ -1,30 +1,31 @@
-const { validationResult } = require('express-validator');
-const ResponseHandler = require('../utils/responseHandler');
+import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
+import ResponseHandler from '../utils/responseHandler.js';
 
 /**
  * Validation Middleware
  * Checks for validation errors and returns formatted response
  */
-const validate = (req, res, next) => {
+export const validate = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
-    const formattedErrors = errors.array().map(error => ({
+    const formattedErrors = errors.array().map((error: any) => ({
       field: error.path,
       message: error.msg,
       value: error.value
     }));
-    
+
     return ResponseHandler.validationError(res, 'Validation failed', formattedErrors);
   }
-  
+
   next();
 };
 
 /**
  * Common Validation Rules
  */
-const commonValidations = {
+export const commonValidations = {
   // User validations
   email: {
     in: ['body'],
@@ -33,7 +34,7 @@ const commonValidations = {
     },
     normalizeEmail: true
   },
-  
+
   password: {
     in: ['body'],
     isLength: {
@@ -41,7 +42,7 @@ const commonValidations = {
       errorMessage: 'Password must be at least 6 characters long'
     }
   },
-  
+
   name: {
     in: ['body'],
     isLength: {
@@ -50,7 +51,7 @@ const commonValidations = {
     },
     trim: true
   },
-  
+
   // Permission validations
   permissionName: {
     in: ['body'],
@@ -60,7 +61,7 @@ const commonValidations = {
     },
     trim: true
   },
-  
+
   resource: {
     in: ['body'],
     isLength: {
@@ -69,7 +70,7 @@ const commonValidations = {
     },
     trim: true
   },
-  
+
   action: {
     in: ['body'],
     isLength: {
@@ -78,7 +79,7 @@ const commonValidations = {
     },
     trim: true
   },
-  
+
   // ID validation
   id: {
     in: ['params'],
@@ -87,7 +88,7 @@ const commonValidations = {
       errorMessage: 'ID is required'
     }
   },
-  
+
   // Pagination validations
   page: {
     in: ['query'],
@@ -98,7 +99,7 @@ const commonValidations = {
     },
     toInt: true
   },
-  
+
   limit: {
     in: ['query'],
     optional: true,
@@ -109,8 +110,3 @@ const commonValidations = {
     toInt: true
   }
 };
-
-module.exports = {
-  validate,
-  commonValidations
-}; 

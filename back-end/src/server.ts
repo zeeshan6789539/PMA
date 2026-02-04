@@ -1,18 +1,16 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
+import 'dotenv/config';
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import { rateLimit } from 'express-rate-limit';
 
 // Import configurations and middleware
-const { testConnection } = require('./config/database');
-const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
-const ResponseHandler = require('./utils/responseHandler');
+import { testConnection } from './config/database.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import ResponseHandler from './utils/responseHandler.js';
 
 // Import routes
-
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,8 +31,8 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit each IP to 100 requests per windowMs
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.',
@@ -58,7 +56,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   return ResponseHandler.success(res, 'Server is running', {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
@@ -68,14 +66,11 @@ app.get('/health', (req, res) => {
 
 // API routes
 
-
-
 // Root endpoint
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   return ResponseHandler.success(res, 'Express Backend API', {
     version: '1.0.0',
     endpoints: {
-
       health: '/health'
     },
     documentation: 'Check the README.md file for API documentation'
@@ -107,4 +102,4 @@ app.listen(PORT, () => {
   console.log(`📚 API Base URL: http://localhost:${PORT}/api`);
 });
 
-module.exports = app; 
+export default app;

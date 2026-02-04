@@ -1,6 +1,6 @@
-const { pgTable, text, timestamp, uuid } = require("drizzle-orm/pg-core");
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-const users = pgTable("users", {
+export const users = pgTable("users", {
     // Generates a random UUID automatically on the database side
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
@@ -9,5 +9,3 @@ const users = pgTable("users", {
     createdAt: timestamp("createdAt").defaultNow(),
     updatedAt: timestamp("updatedAt").defaultNow(),
 });
-
-module.exports = { users };

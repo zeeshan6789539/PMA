@@ -1,13 +1,13 @@
-require('dotenv').config();
-const bcrypt = require('bcryptjs');
-const { db } = require('../../config/database');
-const { users } = require('../schema');
-const { eq } = require('drizzle-orm');
+import 'dotenv/config';
+import bcrypt from 'bcryptjs';
+import { db } from '../../config/database.js';
+import { users } from '../schema/index.js';
+import { eq } from 'drizzle-orm';
 
 /**
  * Seed Users
  */
-const seedUsers = async () => {
+export const seedUsers = async () => {
   console.log('🌱 Seeding users...');
 
   const userList = [
@@ -45,7 +45,7 @@ const seedUsers = async () => {
 /**
  * Main Seeder Function
  */
-const seedDatabase = async () => {
+export const seedDatabase = async () => {
   try {
     console.log('🚀 Starting database seeding...');
     await seedUsers();
@@ -58,13 +58,5 @@ const seedDatabase = async () => {
   }
 };
 
-
-// Run seeder if this file is executed directly
-if (require.main === module) {
-  seedDatabase();
-}
-
-module.exports = {
-  seedDatabase,
-  seedUsers
-};
+// Execute if run directly
+seedDatabase();

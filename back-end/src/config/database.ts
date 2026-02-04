@@ -1,15 +1,15 @@
-const { drizzle } = require('drizzle-orm/node-postgres');
-const { Pool } = require('pg');
-const schema = require('../database/schema');
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from '../database/schema/index.js';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const db = drizzle(pool, { schema });
+export const db = drizzle(pool, { schema });
 
 // Test database connection
-async function testConnection() {
+export async function testConnection() {
   await pool.query('SELECT 1')
     .then(() => console.log('✅ Database connected successfully'))
     .catch((error) => {
@@ -22,5 +22,3 @@ async function testConnection() {
 process.on('beforeExit', async () => {
   await pool.end();
 });
-
-module.exports = { db, testConnection }; 

@@ -1,3 +1,5 @@
+import { Response } from 'express';
+
 /**
  * Standard API Response Handler
  * Ensures all API responses follow the same format
@@ -6,12 +8,12 @@
 class ResponseHandler {
   /**
    * Success response
-   * @param {Object} res - Express response object
+   * @param {Response} res - Express response object
    * @param {string} message - Success message
    * @param {*} data - Response data
    * @param {number} statusCode - HTTP status code (default: 200)
    */
-  static success(res, message = 'Success', data = null, statusCode = 200) {
+  static success(res: Response, message: string = 'Success', data: any = null, statusCode: number = 200) {
     return res.status(statusCode).json({
       success: true,
       message,
@@ -22,12 +24,12 @@ class ResponseHandler {
 
   /**
    * Error response
-   * @param {Object} res - Express response object
+   * @param {Response} res - Express response object
    * @param {string} message - Error message
    * @param {number} statusCode - HTTP status code (default: 500)
    * @param {*} error - Error details
    */
-  static error(res, message = 'Internal Server Error', statusCode = 500, error = null) {
+  static error(res: Response, message: string = 'Internal Server Error', statusCode: number = 500, error: any = null) {
     return res.status(statusCode).json({
       success: false,
       message,
@@ -38,11 +40,11 @@ class ResponseHandler {
 
   /**
    * Validation error response
-   * @param {Object} res - Express response object
+   * @param {Response} res - Express response object
    * @param {string} message - Validation error message
    * @param {Array} errors - Validation errors array
    */
-  static validationError(res, message = 'Validation Error', errors = []) {
+  static validationError(res: Response, message: string = 'Validation Error', errors: any[] = []) {
     return res.status(400).json({
       success: false,
       message,
@@ -53,10 +55,10 @@ class ResponseHandler {
 
   /**
    * Not found response
-   * @param {Object} res - Express response object
+   * @param {Response} res - Express response object
    * @param {string} message - Not found message
    */
-  static notFound(res, message = 'Resource not found') {
+  static notFound(res: Response, message: string = 'Resource not found') {
     return res.status(404).json({
       success: false,
       message,
@@ -66,10 +68,10 @@ class ResponseHandler {
 
   /**
    * Unauthorized response
-   * @param {Object} res - Express response object
+   * @param {Response} res - Express response object
    * @param {string} message - Unauthorized message
    */
-  static unauthorized(res, message = 'Unauthorized') {
+  static unauthorized(res: Response, message: string = 'Unauthorized') {
     return res.status(401).json({
       success: false,
       message,
@@ -79,10 +81,10 @@ class ResponseHandler {
 
   /**
    * Forbidden response
-   * @param {Object} res - Express response object
+   * @param {Response} res - Express response object
    * @param {string} message - Forbidden message
    */
-  static forbidden(res, message = 'Forbidden') {
+  static forbidden(res: Response, message: string = 'Forbidden') {
     return res.status(403).json({
       success: false,
       message,
@@ -91,4 +93,4 @@ class ResponseHandler {
   }
 }
 
-module.exports = ResponseHandler; 
+export default ResponseHandler;

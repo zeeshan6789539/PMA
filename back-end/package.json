@@ -2,14 +2,16 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Express backend with PostgreSQL and Prisma ORM",
-  "main": "src/server.js",
+  "main": "dist/server.js",
+  "type": "module",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "db:push": "drizzle-kit push --config=src/config/drizzle.config.js",
-    "db:generate": "drizzle-kit generate --config=src/config/drizzle.config.js",
-    "db:studio": "drizzle-kit studio --config=src/config/drizzle.config.js",
-    "db:seed": "node src/database/seeders/index.js"
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "db:push": "drizzle-kit push --config=src/config/drizzle.config.ts",
+    "db:generate": "drizzle-kit generate --config=src/config/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=src/config/drizzle.config.ts",
+    "db:seed": "tsx src/database/seeders/index.ts"
   },
   "keywords": [
     "express",
@@ -34,7 +36,16 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.2.0",
+    "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.8",
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
