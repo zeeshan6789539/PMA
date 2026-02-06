@@ -1,8 +1,8 @@
 import 'dotenv/config';
-import bcrypt from 'bcryptjs';
 import { db } from '../../config/database.js';
 import { users } from '../schema/index.js';
 import { eq } from 'drizzle-orm';
+import { gethashedpassword } from '../../utils/helper.js';
 
 /**
  * Seed Users
@@ -27,7 +27,7 @@ export const seedUsers = async () => {
     const existingUser = await db.select().from(users).where(eq(users.email, userData.email)).then(res => res[0]);
 
     if (!existingUser) {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const hashedPassword = await gethashedpassword(userData.password);
 
       await db.insert(users).values({
         name: userData.name,
