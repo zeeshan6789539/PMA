@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { IS_DEVELOPMENT } from './constant.js';
 
 /**
  * Standard API Response Handler
@@ -33,7 +34,7 @@ class ResponseHandler {
     return res.status(statusCode).json({
       success: false,
       message,
-      error: process.env.NODE_ENV === 'development' ? error : null,
+      error: IS_DEVELOPMENT ? error : null,
       timestamp: new Date().toISOString()
     });
   }

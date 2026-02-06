@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import ResponseHandler from '../utils/responseHandler.js';
+import { IS_DEVELOPMENT } from '../utils/constant.js';
 
 /**
  * Custom Error Classes
@@ -108,7 +109,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   const statusCode = error.statusCode || 500;
   const message = error.message || 'Internal Server Error';
 
-  return ResponseHandler.error(res, message, statusCode, process.env.NODE_ENV === 'development' ? err : null);
+  return ResponseHandler.error(res, message, statusCode, IS_DEVELOPMENT ? err : null);
 };
 
 /**

@@ -9,11 +9,12 @@ import { rateLimit } from 'express-rate-limit';
 import { testConnection } from './config/database.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import ResponseHandler from './utils/responseHandler.js';
+import { NODE_ENV, IS_DEVELOPMENT, PORT, ALLOWED_ORIGINS, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS } from './utils/constant.js';
 
 // Import routes
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Use PORT from constants
 
 // Test database connection
 testConnection();
@@ -23,16 +24,16 @@ app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000']
+  origin: !IS_DEVELOPMENT
+    ? ALLOWED_ORIGINS
     : true,
   credentials: true
 }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit each IP to 100 requests per windowMs
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX_REQUESTS,
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.',
@@ -45,7 +46,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Logging middleware
-if (process.env.NODE_ENV === 'development') {
+if (IS_DEVELOPMENT) {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
@@ -59,7 +60,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/health', (req: Request, res: Response) => {
   return ResponseHandler.success(res, 'Server is running', {
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+    environment: NODE_ENV,
     uptime: process.uptime()
   });
 });
@@ -97,7 +98,7 @@ process.on('SIGINT', () => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+  console.log(`📊 Environment: ${NODE_ENV}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   console.log(`📚 API Base URL: http://localhost:${PORT}/api`);
 });
