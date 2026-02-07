@@ -3,6 +3,7 @@ import { db } from '@/config/database.ts';
 import { roles, permissions, rolePermissions, users } from '../schema/index.ts';
 import { eq, and } from 'drizzle-orm';
 import { gethashedpassword } from '@/utils/helper.ts';
+import { DEV_TEMP_PASSWORD } from '@/utils/constant.ts';
 
 /**
  * Seed Roles
@@ -96,14 +97,14 @@ export const seedUsers = async () => {
   const userList = [
     {
       name: 'Super Admin',
-      email: 'superadmin@example.com',
-      password: 'password123',
+      email: 'admin@admin.com',
+      password: DEV_TEMP_PASSWORD,
       roleId: superAdminRole?.id,
     },
     {
       name: 'John Doe',
-      email: 'john@example.com',
-      password: 'password123',
+      email: 'user@user.com',
+      password: DEV_TEMP_PASSWORD,
       roleId: memberRole?.id,
     }
   ];
