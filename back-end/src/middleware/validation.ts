@@ -71,4 +71,76 @@ export const paramValidations = {
   id: param('id').notEmpty().withMessage(MSG.idRequired),
 };
 
+/** User validation chains */
+export const userValidations = {
+  list: [queryValidations.page, queryValidations.limit],
+  getById: [paramValidations.id],
+  create: [
+    bodyLength('name', 2, 50, MSG.name),
+    bodyEmail(),
+    bodyPassword(),
+    body('roleId').optional().isUUID().withMessage('Role ID must be a valid UUID'),
+    body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
+  ],
+  update: [
+    paramValidations.id,
+    bodyLength('name', 2, 50, MSG.name).optional(),
+    bodyEmail().optional(),
+    body('password').optional().isLength({ min: 6 }).withMessage(MSG.password),
+    body('roleId').optional().isUUID().withMessage('Role ID must be a valid UUID'),
+    body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
+  ],
+  remove: [paramValidations.id],
+};
+
+/** Role validation chains */
+export const roleValidations = {
+  list: [],
+  getById: [paramValidations.id],
+  create: [bodyLength('name', 2, 50, 'Role name must be between 2 and 50 characters')],
+  update: [
+    paramValidations.id,
+    bodyLength('name', 2, 50, 'Role name must be between 2 and 50 characters'),
+  ],
+  remove: [paramValidations.id],
+  assignPermissions: [
+    paramValidations.id,
+    body('permissionIds')
+      .isArray()
+      .withMessage('permissionIds must be an array')
+      .notEmpty()
+      .withMessage('permissionIds cannot be empty'),
+    body('permissionIds.*').isUUID().withMessage('Each permission ID must be a valid UUID'),
+  ],
+  removePermissions: [
+    paramValidations.id,
+    body('permissionIds')
+      .isArray()
+      .withMessage('permissionIds must be an array')
+      .notEmpty()
+      .withMessage('permissionIds cannot be empty'),
+    body('permissionIds.*').isUUID().withMessage('Each permission ID must be a valid UUID'),
+  ],
+};
+
+/** Permission validation chains */
+export const permissionValidations = {
+  list: [],
+  getById: [paramValidations.id],
+  create: [
+    bodyLength('name', 2, 100, MSG.permissionName),
+    bodyLength('resource', 2, 50, MSG.resource),
+    bodyLength('action', 2, 50, MSG.action),
+    body('description').optional().isLength({ max: 255 }).withMessage('Description must be at most 255 characters'),
+  ],
+  update: [
+    paramValidations.id,
+    bodyLength('name', 2, 100, MSG.permissionName).optional(),
+    bodyLength('resource', 2, 50, MSG.resource).optional(),
+    bodyLength('action', 2, 50, MSG.action).optional(),
+    body('description').optional().isLength({ max: 255 }).withMessage('Description must be at most 255 characters'),
+  ],
+  remove: [paramValidations.id],
+};
+
 export { MSG, bodyEmail, bodyPassword, bodyRequiredPassword, bodyLength };
