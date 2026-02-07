@@ -7,8 +7,11 @@ import permissionRoutes from './permissions';
 
 const router = Router();
 
+// Public routes (no auth)
 router.use(healthRoutes);
 router.use('/auth', authRoutes);
+
+// Protected routes (validation → auth → authorization applied in each route file)
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
 router.use('/permissions', permissionRoutes);

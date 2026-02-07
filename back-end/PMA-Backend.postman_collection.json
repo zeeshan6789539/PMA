@@ -120,8 +120,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": {
@@ -160,8 +159,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/users/{{userId}}"
@@ -178,8 +176,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -200,8 +197,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -218,8 +214,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/users/{{userId}}"
@@ -237,8 +232,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/roles"
@@ -251,8 +245,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/roles/{{roleId}}"
@@ -269,8 +262,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -291,8 +283,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -309,8 +300,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/roles/{{roleId}}"
@@ -327,8 +317,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -349,8 +338,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -372,8 +360,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/permissions"
@@ -386,8 +373,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/permissions/{{permissionId}}"
@@ -404,8 +390,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -426,8 +411,7 @@
                             },
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "body": {
@@ -444,8 +428,7 @@
                         "header": [
                             {
                                 "key": "Authorization",
-                                "value": "Bearer {{token}}",
-                                "disabled": true
+                                "value": "Bearer {{token}}"
                             }
                         ],
                         "url": "{{baseUrl}}/permissions/{{permissionId}}"

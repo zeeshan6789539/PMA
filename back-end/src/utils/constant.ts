@@ -29,3 +29,8 @@ export const DEV_TEMP_PASSWORD = 'temp@123';
  * Bcrypt configuration
  */
 export const SALT_ROUNDS = 10;
+
+/**
+ * Role names (must match seeded values)
+ */
+export const SUPER_ADMIN_ROLE_NAME = 'Super Admin';
