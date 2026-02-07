@@ -1,8 +1,8 @@
 import 'dotenv/config';
-import { db } from '../../config/database.ts';
+import { db } from '@/config/database.ts';
 import { users } from '../schema/index.ts';
 import { eq } from 'drizzle-orm';
-import { gethashedpassword } from '../../utils/helper.ts';
+import { gethashedpassword } from '@/utils/helper.ts';
 
 /**
  * Seed Users
