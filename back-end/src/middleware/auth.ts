@@ -9,7 +9,7 @@ import { SUPER_ADMIN_ROLE_NAME } from '@/utils/constant';
 
 /** JWT payload shape (must match what auth-controller signs) */
 export interface JwtPayload {
-  id: number;
+  id: string;
   email: string;
 }
 
@@ -71,7 +71,7 @@ export const requireSuperAdmin = asyncHandler(async (req: Request, _res: Respons
     .select({ roleName: roles.name })
     .from(users)
     .leftJoin(roles, eq(users.roleId, roles.id))
-    .where(eq(users.id, req.user.id as string))
+    .where(eq(users.id, req.user.id))
     .limit(1);
 
   if (!row?.roleName || row.roleName !== SUPER_ADMIN_ROLE_NAME) {

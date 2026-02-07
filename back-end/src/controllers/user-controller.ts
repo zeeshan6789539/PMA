@@ -9,11 +9,12 @@ import { userService } from '@/services';
 /** List users with optional pagination and search */
 export const list = asyncHandler(async (req: Request, res: Response) => {
   const { page = 1, limit = 10, search } = req.query;
-  const { users: items, total } = await userService.list({
+  const filters: Parameters<typeof userService.list>[0] = {
     page: Number(page),
     limit: Number(limit),
-    search: typeof search === 'string' ? search : undefined,
-  });
+  };
+  if (typeof search === 'string') filters.search = search;
+  const { users: items, total } = await userService.list(filters);
 
   return ResponseHandler.success(res, 'Users retrieved successfully', {
     users: items,
