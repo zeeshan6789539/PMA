@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import ResponseHandler from '../utils/responseHandler.js';
+import ResponseHandler from '../utils/responseHandler.ts';
 
 /**
  * Validation Middleware

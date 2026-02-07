@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from '../database/schema/index.js';
+import * as schema from '../database/schema/index.ts';
 
-import { DATABASE_URL } from '../utils/constant.js';
+import { DATABASE_URL } from '../utils/constant.ts';
 
 const pool = new Pool({
   connectionString: DATABASE_URL,

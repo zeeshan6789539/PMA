@@ -1,6 +1,6 @@
 // helper.ts
 import bcrypt from 'bcryptjs';
-import { SALT_ROUNDS, DEV_TEMP_PASSWORD, IS_DEVELOPMENT } from './constant.js';
+import { SALT_ROUNDS, DEV_TEMP_PASSWORD, IS_DEVELOPMENT } from './constant.ts';
 
 /**
  * Hash a plain text password using bcryptjs.

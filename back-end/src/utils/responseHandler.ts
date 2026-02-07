@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { IS_DEVELOPMENT } from './constant.js';
+import { IS_DEVELOPMENT } from './constant.ts';
 
 /**
  * Standard API Response Handler
