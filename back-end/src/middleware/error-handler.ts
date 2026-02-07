@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import ResponseHandler from '../utils/responseHandler.ts';
-import { IS_DEVELOPMENT } from '../utils/constant.ts';
+import ResponseHandler from '@/utils/response-handler';
+import { IS_DEVELOPMENT } from '@/utils/constant';
 
 /**
  * Custom Error Classes

@@ -3,11 +3,11 @@ import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '@/config/database';
 import { users, roles } from '@/database/schema';
-import { UnauthorizedError, ForbiddenError } from '@/middleware/errorHandler';
-import { asyncHandler } from '@/middleware/errorHandler';
+import { UnauthorizedError, ForbiddenError } from '@/middleware/error-handler';
+import { asyncHandler } from '@/middleware/error-handler';
 import { SUPER_ADMIN_ROLE_NAME } from '@/utils/constant';
 
-/** JWT payload shape (must match what authController signs) */
+/** JWT payload shape (must match what auth-controller signs) */
 export interface JwtPayload {
   id: number;
   email: string;

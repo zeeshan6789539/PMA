@@ -7,7 +7,7 @@ import {
   remove,
   assignPermissions,
   removePermissions,
-} from '@/controllers/roleController';
+} from '@/controllers/role-controller';
 import { validate, roleValidations } from '@/middleware/validation';
 import { authenticate, requireSuperAdmin } from '@/middleware/auth';
 

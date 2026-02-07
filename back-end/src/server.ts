@@ -6,10 +6,10 @@ import morgan from 'morgan';
 import { rateLimit } from 'express-rate-limit';
 
 // Import configurations and middleware
-import { testConnection } from '@/config/database.ts';
-import { errorHandler, notFoundHandler } from '@/middleware/errorHandler.ts';
-import ResponseHandler from '@/utils/responseHandler.ts';
-import { NODE_ENV, IS_DEVELOPMENT, PORT, ALLOWED_ORIGINS, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS } from '@/utils/constant.ts';
+import { testConnection } from '@/config/database';
+import { errorHandler, notFoundHandler } from '@/middleware/error-handler';
+import ResponseHandler from '@/utils/response-handler';
+import { NODE_ENV, IS_DEVELOPMENT, PORT, ALLOWED_ORIGINS, RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS } from '@/utils/constant';
 
 // Import routes
 import routes from '@/routes/index';

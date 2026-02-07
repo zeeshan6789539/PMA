@@ -5,7 +5,7 @@ import {
   create,
   update,
   remove,
-} from '@/controllers/userController';
+} from '@/controllers/user-controller';
 import { validate, userValidations } from '@/middleware/validation';
 import { authenticate, requireSuperAdmin } from '@/middleware/auth';
 

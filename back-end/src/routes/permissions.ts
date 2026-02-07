@@ -5,7 +5,7 @@ import {
   create,
   update,
   remove,
-} from '@/controllers/permissionController';
+} from '@/controllers/permission-controller';
 import { validate, permissionValidations } from '@/middleware/validation';
 import { authenticate, requireSuperAdmin } from '@/middleware/auth';
 

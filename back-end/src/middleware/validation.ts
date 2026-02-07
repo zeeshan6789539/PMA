@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, param, query, ValidationChain, validationResult } from 'express-validator';
-import ResponseHandler from '../utils/responseHandler.ts';
+import ResponseHandler from '@/utils/response-handler';
 
 /** Centralized validation messages */
 const MSG = {
