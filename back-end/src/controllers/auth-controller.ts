@@ -81,7 +81,7 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
     throw new UnauthorizedError('Account is deactivated');
   }
 
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  const isMatch = await comparePassword(currentPassword, user.password);
   if (!isMatch) {
     return ResponseHandler.error(res, 'Current password is incorrect', 400);
   }
