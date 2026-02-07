@@ -64,10 +64,10 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
   return ResponseHandler.success(res, 'User created successfully', user, 201);
 });
 
-/** Update a user */
+/** Update a user (password cannot be changed via this route; use change-password) */
 export const update = asyncHandler(async (req: Request, res: Response) => {
   const id = req.params.id as string;
-  const { name, email, password, roleId, isActive } = req.body;
+  const { name, email, roleId, isActive } = req.body;
 
   const existing = await userService.findById(id);
   if (!existing) {
@@ -79,7 +79,6 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
   if (email !== undefined) updateData.email = email;
   if (roleId !== undefined) updateData.roleId = roleId;
   if (isActive !== undefined) updateData.isActive = isActive;
-  if (password) updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
 
   const updated = await userService.update(id, updateData);
   if (!updated) {

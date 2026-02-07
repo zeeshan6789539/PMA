@@ -60,6 +60,21 @@ export const authValidations = {
     bodyPassword(),
   ],
   login: [bodyEmail(), bodyRequiredPassword()],
+  changePassword: [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword')
+      .exists()
+      .withMessage('New password is required')
+      .isLength({ min: 6 })
+      .withMessage(MSG.password)
+      .custom((val, { req }) => {
+        const curr = (req as { body?: { currentPassword?: string } }).body?.currentPassword;
+        if (curr && val === curr) {
+          throw new Error('New password must be different from current password');
+        }
+        return true;
+      }),
+  ],
 };
 
 /** Optional chains for query/params (e.g. pagination, id) */
@@ -86,7 +101,6 @@ export const userValidations = {
     paramValidations.id,
     bodyLength('name', 2, 50, MSG.name).optional(),
     bodyEmail().optional(),
-    body('password').optional().isLength({ min: 6 }).withMessage(MSG.password),
     body('roleId').optional().isUUID().withMessage('Role ID must be a valid UUID'),
     body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
   ],
