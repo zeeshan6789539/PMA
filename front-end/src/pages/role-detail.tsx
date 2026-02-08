@@ -18,6 +18,7 @@ export function RoleDetailPage() {
     const { showSuccess, showError } = useToast();
     const [role, setRole] = useState<RoleResponse | null>(null);
     const [allPermissions, setAllPermissions] = useState<PermissionResponse[]>([]);
+    const [originalPermissions, setOriginalPermissions] = useState<string[]>([]);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -33,7 +34,9 @@ export function RoleDetailPage() {
             ]);
             setRole(roleRes.data.data);
             setAllPermissions(permissionsRes.data.data);
-            setSelectedPermissions(roleRes.data.data.permissions?.map((p: RolePermission) => p.id) || []);
+            const permIds = roleRes.data.data.permissions?.map((p: RolePermission) => p.id) || [];
+            setOriginalPermissions(permIds);
+            setSelectedPermissions(permIds);
             // Expand all by default to show the grid
             setExpandedGroups(new Set(permissionsRes.data.data.map((p: any) => p.resource)));
         } catch (err: unknown) {
@@ -49,8 +52,19 @@ export function RoleDetailPage() {
         if (!id) return;
         try {
             setIsSaving(true);
-            await rolesApi.assignPermissions(id, { permissionIds: selectedPermissions });
+            // Calculate permissions to add and remove
+            const permissionsToAdd = selectedPermissions.filter(id => !originalPermissions.includes(id));
+            const permissionsToRemove = originalPermissions.filter(id => !selectedPermissions.includes(id));
+
+            // Execute both operations in parallel if needed
+            await Promise.all([
+                permissionsToAdd.length > 0 && rolesApi.assignPermissions(id, { permissionIds: permissionsToAdd }),
+                permissionsToRemove.length > 0 && rolesApi.removePermissions(id, { permissionIds: permissionsToRemove }),
+            ]);
+
             showSuccess('Permissions updated successfully', successToastOptions);
+            // Refresh the original permissions to match current state
+            setOriginalPermissions([...selectedPermissions]);
         } catch (err: unknown) {
             showError(err instanceof Error ? err.message : 'Failed to update', errorToastOptions);
         } finally {
