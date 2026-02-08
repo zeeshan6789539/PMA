@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { permissionsApi, type PermissionResponse, type CreatePermissionRequest, type UpdatePermissionRequest } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,8 +12,8 @@ import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock } from 'lucide-react';
 export function PermissionsPage() {
     const [permissions, setPermissions] = useState<PermissionResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const { showSuccess, showError } = useToast();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [permissionToDelete, setPermissionToDelete] = useState<PermissionResponse | null>(null);
     const [editingPermission, setEditingPermission] = useState<PermissionResponse | null>(null);
@@ -25,10 +27,9 @@ export function PermissionsPage() {
             setIsLoading(true);
             const response = await permissionsApi.list();
             setPermissions(response.data.data);
-            setError('');
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to fetch permissions';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -44,8 +45,10 @@ export function PermissionsPage() {
             setIsLoading(true);
             if (editingPermission) {
                 await permissionsApi.update(editingPermission.id, formData);
+                showSuccess('Permission updated successfully', successToastOptions);
             } else {
                 await permissionsApi.create(formData);
+                showSuccess('Permission created successfully', successToastOptions);
             }
             setShowForm(false);
             setEditingPermission(null);
@@ -53,7 +56,7 @@ export function PermissionsPage() {
             fetchPermissions();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save permission';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -78,12 +81,13 @@ export function PermissionsPage() {
         try {
             setIsLoading(true);
             await permissionsApi.delete(permissionToDelete.id);
+            showSuccess('Permission deleted successfully', successToastOptions);
             setShowDeleteModal(false);
             setPermissionToDelete(null);
             fetchPermissions();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete permission';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -107,12 +111,6 @@ export function PermissionsPage() {
                     </Button>
                 </div>
             </div>
-
-            {error && (
-                <div className="p-4 mb-4 text-sm text-destructive bg-destructive/10 rounded-md">
-                    {error}
-                </div>
-            )}
 
             {showForm && (
                 <Card className="mb-6">

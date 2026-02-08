@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { usersApi, type UserResponse, type CreateUserRequest, type UpdateUserRequest } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,8 +12,8 @@ import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 export function UsersPage() {
     const [users, setUsers] = useState<UserResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const { showSuccess, showError } = useToast();
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
     const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
     const [formData, setFormData] = useState<CreateUserRequest | UpdateUserRequest>({
@@ -25,10 +27,9 @@ export function UsersPage() {
             setIsLoading(true);
             const response = await usersApi.list();
             setUsers(response.data?.data?.users || []);
-            setError('');
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to fetch users';
-            setError(message);
+            showError(message, errorToastOptions);
             setUsers([]);
         } finally {
             setIsLoading(false);
@@ -45,8 +46,10 @@ export function UsersPage() {
             setIsLoading(true);
             if (editingUser) {
                 await usersApi.update(editingUser.id, formData as UpdateUserRequest);
+                showSuccess('User updated successfully', successToastOptions);
             } else {
                 await usersApi.create(formData as CreateUserRequest);
+                showSuccess('User created successfully', successToastOptions);
             }
             setShowForm(false);
             setEditingUser(null);
@@ -54,7 +57,7 @@ export function UsersPage() {
             fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save user';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -78,10 +81,11 @@ export function UsersPage() {
         try {
             setIsLoading(true);
             await usersApi.delete(deletingUserId);
+            showSuccess('User deleted successfully', successToastOptions);
             fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete user';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
             setDeletingUserId(null);
@@ -106,12 +110,6 @@ export function UsersPage() {
                     </Button>
                 </div>
             </div>
-
-            {error && (
-                <div className="p-4 mb-4 text-sm text-destructive bg-destructive/10 rounded-md">
-                    {error}
-                </div>
-            )}
 
             {showForm && (
                 <Card className="mb-6">

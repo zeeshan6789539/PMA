@@ -1,6 +1,8 @@
 import { Moon, Sun, User, LogOut, Mail, Key } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
+import { successToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
@@ -11,6 +13,7 @@ import { useState } from 'react';
 export function ProfilePage() {
     const { theme, setTheme } = useTheme();
     const { user, logout } = useAuth();
+    const { showSuccess } = useToast();
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
@@ -72,7 +75,10 @@ export function ProfilePage() {
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    onClick={logout}
+                                    onClick={() => {
+                                        logout();
+                                        showSuccess('You have been signed out successfully', successToastOptions);
+                                    }}
                                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
                                     <LogOut className="h-4 w-4 mr-2" />

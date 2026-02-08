@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { rolesApi, permissionsApi, type RoleResponse, type CreateRoleRequest, type UpdateRoleRequest, type PermissionResponse } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,8 +13,8 @@ export function RolesPage() {
     const [roles, setRoles] = useState<RoleResponse[]>([]);
     const [permissions, setPermissions] = useState<PermissionResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const { showSuccess, showError } = useToast();
     const [editingRole, setEditingRole] = useState<RoleResponse | null>(null);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
     const [formData, setFormData] = useState<CreateRoleRequest>({
@@ -30,10 +32,9 @@ export function RolesPage() {
             ]);
             setRoles(rolesRes.data.data);
             setPermissions(permissionsRes.data.data);
-            setError('');
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to fetch data';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -49,8 +50,10 @@ export function RolesPage() {
             setIsLoading(true);
             if (editingRole) {
                 await rolesApi.update(editingRole.id, formData);
+                showSuccess('Role updated successfully', successToastOptions);
             } else {
                 await rolesApi.create(formData);
+                showSuccess('Role created successfully', successToastOptions);
             }
             setShowForm(false);
             setEditingRole(null);
@@ -58,7 +61,7 @@ export function RolesPage() {
             fetchData();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save role';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -82,10 +85,11 @@ export function RolesPage() {
         try {
             setIsLoading(true);
             await rolesApi.delete(roleToDelete.id);
+            showSuccess('Role deleted successfully', successToastOptions);
             fetchData();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete role';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
             setDeleteModalOpen(false);
@@ -98,10 +102,11 @@ export function RolesPage() {
         try {
             setIsLoading(true);
             await rolesApi.assignPermissions(editingRole.id, { permissionIds: selectedPermissions });
+            showSuccess('Permissions assigned successfully', successToastOptions);
             fetchData();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to assign permissions';
-            setError(message);
+            showError(message, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -125,12 +130,6 @@ export function RolesPage() {
                     </Button>
                 </div>
             </div>
-
-            {error && (
-                <div className="p-4 mb-4 text-sm text-destructive bg-destructive/10 rounded-md">
-                    {error}
-                </div>
-            )}
 
             {showForm && (
                 <Card className="mb-6">

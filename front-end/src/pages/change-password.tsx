@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
+import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,10 +13,10 @@ import { Link } from 'react-router-dom';
 export function ChangePasswordPage() {
     const navigate = useNavigate();
     const { changePassword, isAuthenticated, logout } = useAuth();
+    const { showSuccess, showError } = useToast();
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -34,20 +36,19 @@ export function ChangePasswordPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
 
         if (!allRequirementsMet) {
-            setError('New password does not meet requirements');
+            showError('New password does not meet requirements', errorToastOptions);
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
+            showError('Passwords do not match', errorToastOptions);
             return;
         }
 
         if (currentPassword === newPassword) {
-            setError('New password must be different from current password');
+            showError('New password must be different from current password', errorToastOptions);
             return;
         }
 
@@ -56,13 +57,14 @@ export function ChangePasswordPage() {
         try {
             await changePassword({ currentPassword, newPassword });
             setSuccess(true);
+            showSuccess('Password changed successfully! Please log in again.', successToastOptions);
             setTimeout(() => {
                 logout();
                 navigate('/login');
             }, 2000);
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to change password. Please try again.';
-            setError(errorMessage);
+            showError(errorMessage, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -104,12 +106,6 @@ export function ChangePasswordPage() {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
-                        {error && (
-                            <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                                <AlertCircle className="h-4 w-4" />
-                                {error}
-                            </div>
-                        )}
                         <div className="space-y-2">
                             <Label htmlFor="currentPassword">Current Password</Label>
                             <Input

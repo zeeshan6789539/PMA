@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Layout, AuthLayout } from '@/components/layout';
 import { ProtectedRoute } from '@/components/protected-route';
@@ -15,6 +16,7 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <Toaster position="top-right" />
         <AuthProvider>
           <Routes>
             <Route element={<AuthLayout />}>

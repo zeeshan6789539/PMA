@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
+import type { Location } from 'react-router';
 import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
+import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation() as Location;
     const { login, isAuthenticated } = useAuth();
+    const { showSuccess, showError } = useToast();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     if (isAuthenticated) {
@@ -22,16 +26,16 @@ export function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
         setIsLoading(true);
 
         try {
             await login({ email, password });
+            showSuccess('Login successful!', successToastOptions);
             const from = location.state?.from?.pathname || '/';
             navigate(from, { replace: true });
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
-            setError(errorMessage);
+            showError(errorMessage, errorToastOptions);
         } finally {
             setIsLoading(false);
         }
@@ -48,12 +52,6 @@ export function LoginPage() {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
-                        {error && (
-                            <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                                <AlertCircle className="h-4 w-4" />
-                                {error}
-                            </div>
-                        )}
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
