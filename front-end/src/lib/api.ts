@@ -144,6 +144,7 @@ export const usersApi = {
 export interface Role {
     id: string;
     name: string;
+    permissionCount?: number;
     createdAt: string;
     updatedAt: string;
 }

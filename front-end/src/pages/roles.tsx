@@ -120,6 +120,7 @@ export function RolesPage() {
                             <thead>
                                 <tr className="border-b bg-muted/50">
                                     <th className="text-left p-4 font-medium">Name</th>
+                                    <th className="text-left p-4 font-medium">Permissions</th>
                                     <th className="text-left p-4 font-medium">Created At</th>
                                     <th className="text-right p-4 font-medium">Actions</th>
                                 </tr>
@@ -134,6 +135,9 @@ export function RolesPage() {
                                                     {role.name}
                                                 </Link>
                                             </div>
+                                        </td>
+                                        <td className="p-4 text-muted-foreground">
+                                            {role.permissionCount || 0} permissions
                                         </td>
                                         <td className="p-4 text-muted-foreground">
                                             {new Date(role.createdAt).toLocaleDateString()}
