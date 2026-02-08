@@ -1,20 +1,29 @@
-import { ThemeProvider } from "@/components/theme-provider"
-import { Header } from "@/components/header"
+import { BrowserRouter, Routes, Route } from 'react-router';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Layout, AuthLayout } from '@/components/layout';
+import { AuthProvider } from '@/context/auth-context';
+import { HomePage } from '@/pages/home';
+import { LoginPage } from '@/pages/login';
+import { ChangePasswordPage } from '@/pages/change-password';
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="min-h-screen bg-background text-foreground">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-4">Welcome to My App</h1>
-          <p className="text-muted-foreground">
-            This is a Vite + React + TypeScript project with Tailwind CSS and shadcn/ui.
-          </p>
-        </main>
-      </div>
-    </ThemeProvider>
-  )
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <AuthProvider>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/change-password" element={<ChangePasswordPage />} />
+            </Route>
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<LoginPage />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
