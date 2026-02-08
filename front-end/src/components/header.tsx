@@ -1,6 +1,7 @@
 import { User, Users, Shield, Lock } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Link, useLocation } from 'react-router-dom';
+import { Separator } from '@/components/ui/separator';
 
 export function Header() {
     const { isAuthenticated, user } = useAuth();
@@ -16,6 +17,7 @@ export function Header() {
                     <Link to="/" className="text-xl font-bold hover:text-primary transition-colors">
                         PMA
                     </Link>
+                    <Separator orientation="vertical" className="h-8" />
 
                     {isAuthenticated && (
                         <nav className="hidden md:flex items-center gap-1">
