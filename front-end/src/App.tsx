@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Layout, AuthLayout } from '@/components/layout';
+import { ProtectedRoute } from '@/components/protected-route';
 import { AuthProvider } from '@/context/auth-context';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
@@ -12,12 +13,14 @@ function App() {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <AuthProvider>
           <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/change-password" element={<ChangePasswordPage />} />
-            </Route>
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<LoginPage />} />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/change-password" element={<ChangePasswordPage />} />
+              </Route>
             </Route>
           </Routes>
         </AuthProvider>

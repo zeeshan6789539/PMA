@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,7 +27,8 @@ export function LoginPage() {
 
         try {
             await login({ email, password });
-            navigate('/');
+            const from = location.state?.from?.pathname || '/';
+            navigate(from, { replace: true });
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
             setError(errorMessage);

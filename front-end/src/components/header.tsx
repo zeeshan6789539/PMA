@@ -34,7 +34,7 @@ export function Header() {
                         <span className="sr-only">Toggle theme</span>
                     </Button>
 
-                    {isAuthenticated ? (
+                    {isAuthenticated && (
                         <div className="flex items-center gap-4">
                             <div className="hidden sm:flex items-center gap-2 text-sm">
                                 <User className="h-4 w-4" />
@@ -44,14 +44,6 @@ export function Header() {
                                 <LogOut className="h-4 w-4 sm:mr-2" />
                                 <span className="hidden sm:inline">Logout</span>
                             </Button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <Link to="/login">
-                                <Button variant="ghost" size="sm">
-                                    Sign In
-                                </Button>
-                            </Link>
                         </div>
                     )}
                 </div>
