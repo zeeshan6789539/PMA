@@ -10,6 +10,25 @@ export type PermissionSummary = {
   description?: string | null;
 };
 
+export type GroupedPermissions = Record<string, Record<string, boolean>>;
+
+/** Transform permissions array to grouped format: { user: { create: true, update: false } } */
+export function transformPermissionsToGroupedFormat(permissions: PermissionSummary[]): GroupedPermissions {
+  const grouped: GroupedPermissions = {};
+
+  for (const perm of permissions) {
+    const { resource, action } = perm;
+
+    if (!grouped[resource]) {
+      grouped[resource] = {};
+    }
+
+    grouped[resource][action] = true;
+  }
+
+  return grouped;
+}
+
 /** List all roles with their permission count */
 export async function listWithPermissionCounts() {
   return db
@@ -57,7 +76,9 @@ export async function findByIdWithPermissions(id: string) {
     .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
     .where(eq(rolePermissions.roleId, id));
 
-  return { ...role, permissions: rolePerms };
+  const groupedPermissions = transformPermissionsToGroupedFormat(rolePerms);
+
+  return { ...role, permissions: groupedPermissions };
 }
 
 /** Check if role name exists (returns id if exists) */

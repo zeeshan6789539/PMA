@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
 
 export function UsersPage() {
     const [users, setUsers] = useState<UserResponse[]>([]);
@@ -21,6 +22,11 @@ export function UsersPage() {
         email: '',
         password: '',
     });
+    const { hasPermission } = useAuth();
+
+    const canCreate = hasPermission('user', 'create');
+    const canUpdate = hasPermission('user', 'update');
+    const canDelete = hasPermission('user', 'delete');
 
     const fetchUsers = async () => {
         try {
@@ -104,10 +110,12 @@ export function UsersPage() {
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>
-                    <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '' }); }}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add User
-                    </Button>
+                    {canCreate && (
+                        <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '' }); }}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add User
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -197,12 +205,16 @@ export function UsersPage() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Button variant="outline" size="icon" onClick={() => handleEdit(user)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="outline" size="icon" onClick={() => handleDelete(user.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                {canUpdate && (
+                                                    <Button variant="outline" size="icon" onClick={() => handleEdit(user)}>
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                                {canDelete && (
+                                                    <Button variant="outline" size="icon" onClick={() => handleDelete(user.id)}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

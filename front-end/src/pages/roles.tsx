@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Shield } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
 
 export function RolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -20,6 +21,11 @@ export function RolesPage() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
+    const { hasPermission } = useAuth();
+
+    const canCreate = hasPermission('role', 'create');
+    const canUpdate = hasPermission('role', 'update');
+    const canDelete = hasPermission('role', 'delete');
 
     const fetchData = async () => {
         try {
@@ -102,10 +108,12 @@ export function RolesPage() {
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>
-                    <Button onClick={() => { setEditingRole(null); setFormData({ name: '' }); setEditModalOpen(true); }}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Role
-                    </Button>
+                    {canCreate && (
+                        <Button onClick={() => { setEditingRole(null); setFormData({ name: '' }); setEditModalOpen(true); }}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Role
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -144,12 +152,16 @@ export function RolesPage() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Button variant="outline" size="icon" onClick={() => handleEdit(role)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="outline" size="icon" onClick={() => handleDelete(role.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                {canUpdate && (
+                                                    <Button variant="outline" size="icon" onClick={() => handleEdit(role)}>
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                                {canDelete && (
+                                                    <Button variant="outline" size="icon" onClick={() => handleDelete(role.id)}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

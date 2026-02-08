@@ -25,6 +25,7 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            localStorage.removeItem('permissions');
         }
         return Promise.reject(error);
     }
@@ -56,6 +57,17 @@ export interface LoginRequest {
 export interface LoginResponse {
     user: User;
     token: string;
+    role: Role;
+    permissions: Permissions;
+}
+
+export interface Permissions {
+    [resource: string]: {
+        create?: boolean;
+        read?: boolean;
+        update?: boolean;
+        delete?: boolean;
+    };
 }
 
 export interface SignupRequest {
@@ -147,6 +159,14 @@ export interface Role {
     permissionCount?: number;
     createdAt: string;
     updatedAt: string;
+    permissions?: {
+        [resource: string]: {
+            create?: boolean;
+            read?: boolean;
+            update?: boolean;
+            delete?: boolean;
+        };
+    };
 }
 
 export interface RolePermission {

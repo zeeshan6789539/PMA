@@ -4,12 +4,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 
 export function Header() {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, hasPermission } = useAuth();
     const location = useLocation();
 
     const isActive = (path: string) => location.pathname === path;
     const isRolesActive = () => location.pathname === '/roles' || location.pathname.startsWith('/roles/');
 
+    const canViewUsers = hasPermission('user', 'read');
+    const canViewRoles = hasPermission('role', 'read');
+    const canViewPermissions = hasPermission('permission', 'read');
 
     return (
         <header className="border-b">
@@ -22,36 +25,42 @@ export function Header() {
 
                     {isAuthenticated && (
                         <nav className="hidden md:flex items-center gap-1">
-                            <Link
-                                to="/users"
-                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/users')
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                                    }`}
-                            >
-                                <Users className="h-4 w-4" />
-                                Users
-                            </Link>
-                            <Link
-                                to="/roles"
-                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isRolesActive()
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                                    }`}
-                            >
-                                <Shield className="h-4 w-4" />
-                                Roles
-                            </Link>
-                            <Link
-                                to="/permissions"
-                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/permissions')
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                                    }`}
-                            >
-                                <Lock className="h-4 w-4" />
-                                Permissions
-                            </Link>
+                            {canViewUsers && (
+                                <Link
+                                    to="/users"
+                                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/users')
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    <Users className="h-4 w-4" />
+                                    Users
+                                </Link>
+                            )}
+                            {canViewRoles && (
+                                <Link
+                                    to="/roles"
+                                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isRolesActive()
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    <Shield className="h-4 w-4" />
+                                    Roles
+                                </Link>
+                            )}
+                            {canViewPermissions && (
+                                <Link
+                                    to="/permissions"
+                                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/permissions')
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    <Lock className="h-4 w-4" />
+                                    Permissions
+                                </Link>
+                            )}
                         </nav>
                     )}
                 </div>

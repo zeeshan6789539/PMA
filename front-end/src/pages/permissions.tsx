@@ -10,6 +10,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock, ChevronDown, ChevronRight, Shield } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
 
 interface PermissionGroup {
     resource: string;
@@ -32,6 +33,11 @@ export function PermissionsPage() {
         description: '',
     });
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+    const { hasPermission } = useAuth();
+
+    const canCreate = hasPermission('permission', 'create');
+    const canUpdate = hasPermission('permission', 'update');
+    const canDelete = hasPermission('permission', 'delete');
 
     const fetchPermissions = async () => {
         try {
@@ -171,10 +177,12 @@ export function PermissionsPage() {
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>
-                    <Button onClick={() => { setEditingPermission(null); setFormData({ name: '', resource: '', action: '', description: '' }); setShowFormModal(true); }}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Permission
-                    </Button>
+                    {canCreate && (
+                        <Button onClick={() => { setEditingPermission(null); setFormData({ name: '', resource: '', action: '', description: '' }); setShowFormModal(true); }}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Permission
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -223,12 +231,16 @@ export function PermissionsPage() {
                                                             </span>
                                                         </div>
                                                         <div className="flex gap-1">
-                                                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleEdit(permission); }}>
-                                                                <Pencil className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleDelete(permission); }}>
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
+                                                            {canUpdate && (
+                                                                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleEdit(permission); }}>
+                                                                    <Pencil className="h-4 w-4" />
+                                                                </Button>
+                                                            )}
+                                                            {canDelete && (
+                                                                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleDelete(permission); }}>
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ))}

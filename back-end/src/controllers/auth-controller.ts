@@ -4,7 +4,7 @@ import ResponseHandler from '@/utils/response-handler';
 import { asyncHandler } from '@/middleware/error-handler';
 import { UnauthorizedError } from '@/middleware/error-handler';
 import { gethashedpassword, comparePassword } from '@/utils/helper';
-import { userService } from '@/services';
+import { userService, roleService } from '@/services';
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -57,8 +57,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   );
 
   const { password: _, ...userWithoutPassword } = user;
+
+  // Get role details with permissions if roleId exists
+  let role = null;
+  if (user.roleId) {
+    role = await roleService.findByIdWithPermissions(user.roleId);
+  }
+
   return ResponseHandler.success(res, 'Login successful', {
     user: userWithoutPassword,
+    role,
     token,
   });
 });
