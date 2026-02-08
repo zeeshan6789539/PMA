@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 
 export function UsersPage() {
@@ -12,6 +13,7 @@ export function UsersPage() {
     const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
+    const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
     const [formData, setFormData] = useState<CreateUserRequest | UpdateUserRequest>({
         name: '',
         email: '',
@@ -68,16 +70,21 @@ export function UsersPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this user?')) return;
+        setDeletingUserId(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!deletingUserId) return;
         try {
             setIsLoading(true);
-            await usersApi.delete(id);
+            await usersApi.delete(deletingUserId);
             fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete user';
             setError(message);
         } finally {
             setIsLoading(false);
+            setDeletingUserId(null);
         }
     };
 
@@ -212,6 +219,15 @@ export function UsersPage() {
                     </CardContent>
                 </Card>
             )}
+
+            <ConfirmationModal
+                open={deletingUserId !== null}
+                onOpenChange={() => setDeletingUserId(null)}
+                title="Delete User"
+                description="Are you sure you want to delete this user? This action cannot be undone."
+                confirmText="Delete"
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock } from 'lucide-react';
 
 export function PermissionsPage() {
@@ -11,6 +12,8 @@ export function PermissionsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [permissionToDelete, setPermissionToDelete] = useState<PermissionResponse | null>(null);
     const [editingPermission, setEditingPermission] = useState<PermissionResponse | null>(null);
     const [formData, setFormData] = useState<CreatePermissionRequest>({
         name: '',
@@ -65,11 +68,18 @@ export function PermissionsPage() {
         setShowForm(true);
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this permission?')) return;
+    const handleDelete = async (permission: PermissionResponse) => {
+        setPermissionToDelete(permission);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!permissionToDelete) return;
         try {
             setIsLoading(true);
-            await permissionsApi.delete(id);
+            await permissionsApi.delete(permissionToDelete.id);
+            setShowDeleteModal(false);
+            setPermissionToDelete(null);
             fetchPermissions();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete permission';
@@ -184,7 +194,7 @@ export function PermissionsPage() {
                                                 <Button variant="outline" size="icon" onClick={() => handleEdit(permission)}>
                                                     <Pencil className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="outline" size="icon" onClick={() => handleDelete(permission.id)}>
+                                                <Button variant="outline" size="icon" onClick={() => handleDelete(permission)}>
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
@@ -201,6 +211,16 @@ export function PermissionsPage() {
                     </CardContent>
                 </Card>
             )}
+
+            <ConfirmationModal
+                open={showDeleteModal}
+                onOpenChange={setShowDeleteModal}
+                title="Delete Permission"
+                description={`Are you sure you want to delete the permission "${permissionToDelete?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                variant="destructive"
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

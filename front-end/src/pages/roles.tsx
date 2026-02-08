@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Shield } from 'lucide-react';
 
 export function RolesPage() {
@@ -17,6 +18,8 @@ export function RolesPage() {
     const [formData, setFormData] = useState<CreateRoleRequest>({
         name: '',
     });
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [roleToDelete, setRoleToDelete] = useState<RoleResponse | null>(null);
 
     const fetchData = async () => {
         try {
@@ -69,16 +72,24 @@ export function RolesPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this role?')) return;
+        const role = roles.find(r => r.id === id) || null;
+        setRoleToDelete(role);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!roleToDelete) return;
         try {
             setIsLoading(true);
-            await rolesApi.delete(id);
+            await rolesApi.delete(roleToDelete.id);
             fetchData();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete role';
             setError(message);
         } finally {
             setIsLoading(false);
+            setDeleteModalOpen(false);
+            setRoleToDelete(null);
         }
     };
 
@@ -233,6 +244,17 @@ export function RolesPage() {
                     </CardContent>
                 </Card>
             )}
+
+            <ConfirmationModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                title="Delete Role"
+                description={`Are you sure you want to delete the role "${roleToDelete?.name || ''}"? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={confirmDelete}
+                variant="destructive"
+            />
         </div>
     );
 }
