@@ -1,28 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { rolesApi, type RoleResponse, type CreateRoleRequest, type UpdateRoleRequest } from '@/lib/api';
+import { rolesApi, type Role, type CreateRoleRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
+import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Shield } from 'lucide-react';
 
 export function RolesPage() {
-    const [roles, setRoles] = useState<RoleResponse[]>([]);
-    const [permissions, setPermissions] = useState<PermissionResponse[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
     const { showSuccess, showError } = useToast();
-    const [editingRole, setEditingRole] = useState<RoleResponse | null>(null);
-    const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-    const [formData, setFormData] = useState<CreateRoleRequest>({
-        name: '',
-    });
+    const [editingRole, setEditingRole] = useState<Role | null>(null);
+    const [formData, setFormData] = useState<CreateRoleRequest>({ name: '' });
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [roleToDelete, setRoleToDelete] = useState<RoleResponse | null>(null);
+    const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -52,7 +49,7 @@ export function RolesPage() {
                 await rolesApi.create(formData);
                 showSuccess('Role created successfully', successToastOptions);
             }
-            setShowForm(false);
+            setEditModalOpen(false);
             setEditingRole(null);
             setFormData({ name: '' });
             fetchData();
@@ -64,11 +61,10 @@ export function RolesPage() {
         }
     };
 
-    const handleEdit = (role: RoleResponse) => {
+    const handleEdit = (role: Role) => {
         setEditingRole(role);
-        setSelectedPermissions([]);
         setFormData({ name: role.name });
-        setShowForm(true);
+        setEditModalOpen(true);
     };
 
     const handleDelete = async (id: string) => {
@@ -94,21 +90,6 @@ export function RolesPage() {
         }
     };
 
-    const handleAssignPermissions = async () => {
-        if (!editingRole) return;
-        try {
-            setIsLoading(true);
-            await rolesApi.assignPermissions(editingRole.id, { permissionIds: selectedPermissions });
-            showSuccess('Permissions assigned successfully', successToastOptions);
-            fetchData();
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to assign permissions';
-            showError(message, errorToastOptions);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     return (
         <div className="container mx-auto py-8 px-4">
             <div className="flex items-center justify-between mb-6">
@@ -121,71 +102,12 @@ export function RolesPage() {
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>
-                    <Button onClick={() => { setShowForm(true); setEditingRole(null); setFormData({ name: '' }); setSelectedPermissions([]); }}>
+                    <Button onClick={() => { setEditingRole(null); setFormData({ name: '' }); setEditModalOpen(true); }}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Role
                     </Button>
                 </div>
             </div>
-
-            {showForm && (
-                <Card className="mb-6">
-                    <CardHeader>
-                        <CardTitle>{editingRole ? 'Edit Role' : 'Create Role'}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Role Name</Label>
-                                <Input
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            {editingRole && (
-                                <div className="space-y-2">
-                                    <Label>Permissions</Label>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
-                                        {permissions.map((permission) => (
-                                            <label key={permission.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedPermissions.includes(permission.id)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setSelectedPermissions([...selectedPermissions, permission.id]);
-                                                        } else {
-                                                            setSelectedPermissions(selectedPermissions.filter(id => id !== permission.id));
-                                                        }
-                                                    }}
-                                                />
-                                                {permission.name}
-                                            </label>
-                                        ))}
-                                    </div>
-                                    <Button type="button" variant="outline" size="sm" onClick={handleAssignPermissions} disabled={isLoading}>
-                                        {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                        Save Permissions
-                                    </Button>
-                                </div>
-                            )}
-
-                            <div className="flex gap-2">
-                                <Button type="submit" disabled={isLoading}>
-                                    {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                    {editingRole ? 'Update' : 'Create'}
-                                </Button>
-                                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingRole(null); }}>
-                                    Cancel
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
-            )}
 
             {isLoading && !roles.length ? (
                 <div className="flex items-center justify-center py-12">
@@ -198,7 +120,6 @@ export function RolesPage() {
                             <thead>
                                 <tr className="border-b bg-muted/50">
                                     <th className="text-left p-4 font-medium">Name</th>
-                                    <th className="text-left p-4 font-medium">Permissions</th>
                                     <th className="text-left p-4 font-medium">Created At</th>
                                     <th className="text-right p-4 font-medium">Actions</th>
                                 </tr>
@@ -213,9 +134,6 @@ export function RolesPage() {
                                                     {role.name}
                                                 </Link>
                                             </div>
-                                        </td>
-                                        <td className="p-4 text-muted-foreground">
-                                            {typeof role.permissionCount === 'number' ? role.permissionCount : parseInt(role.permissionCount) || 0} permissions
                                         </td>
                                         <td className="p-4 text-muted-foreground">
                                             {new Date(role.createdAt).toLocaleDateString()}
@@ -253,6 +171,35 @@ export function RolesPage() {
                 onConfirm={confirmDelete}
                 variant="destructive"
             />
+
+            <Dialog
+                open={editModalOpen}
+                onOpenChange={setEditModalOpen}
+                title={editingRole ? 'Edit Role' : 'Create Role'}
+            >
+                <div className="p-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Role Name</Label>
+                            <Input
+                                id="name"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                required
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                {editingRole ? 'Update' : 'Create'}
+                            </Button>
+                            <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
+                                Cancel
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            </Dialog>
         </div>
     );
 }
