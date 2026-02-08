@@ -6,6 +6,7 @@ import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTheme } from '@/components/theme-provider';
 import { Loader2, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 
 interface PermissionGroup {
@@ -15,6 +16,7 @@ interface PermissionGroup {
 
 export function RoleDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const { theme } = useTheme();
     const { showSuccess, showError } = useToast();
     const [role, setRole] = useState<RoleResponse | null>(null);
     const [allPermissions, setAllPermissions] = useState<PermissionResponse[]>([]);
@@ -153,8 +155,8 @@ export function RoleDetailPage() {
                                                             <span className="text-xs font-bold text-foreground capitalize truncate">{p.action}</span>
                                                             <span className="text-[10px] text-muted-foreground truncate">{p.description}</span>
                                                         </div>
-                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${isSelected ? 'bg-primary' : 'bg-muted'}`}>
-                                                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${isSelected ? 'translate-x-5' : 'translate-x-1'}`} />
+                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 transition-colors ${isSelected ? 'bg-primary border-primary' : 'bg-muted dark:bg-muted-foreground/20 border-muted-foreground/30'}`}>
+                                                            <span className={`inline-block h-3 w-3 transform rounded-full shadow-sm transition-transform ${isSelected ? `translate-x-5 ${theme === 'dark' ? 'bg-dark-background' : 'bg-white'}` : 'translate-x-0.5 bg-muted-foreground'}`} />
                                                         </div>
                                                     </div>
                                                 );
