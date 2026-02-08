@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 import { rolesApi, permissionsApi, type RoleResponse, type CreateRoleRequest, type UpdateRoleRequest, type PermissionResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -212,7 +213,9 @@ export function RolesPage() {
                                         <td className="p-4">
                                             <div className="flex items-center gap-2">
                                                 <Shield className="h-4 w-4 text-muted-foreground" />
-                                                {role.name}
+                                                <Link to={`/roles/${role.id}`} className="hover:underline font-medium">
+                                                    {role.name}
+                                                </Link>
                                             </div>
                                         </td>
                                         <td className="p-4 text-muted-foreground">

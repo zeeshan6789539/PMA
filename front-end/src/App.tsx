@@ -10,6 +10,7 @@ import { ChangePasswordPage } from '@/pages/change-password';
 import { ProfilePage } from '@/pages/profile';
 import { UsersPage } from '@/pages/users';
 import { RolesPage } from '@/pages/roles';
+import { RoleDetailPage } from '@/pages/role-detail';
 import { PermissionsPage } from '@/pages/permissions';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/roles" element={<RolesPage />} />
+                <Route path="/roles/:id" element={<RoleDetailPage />} />
                 <Route path="/permissions" element={<PermissionsPage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
               </Route>

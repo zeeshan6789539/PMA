@@ -8,6 +8,7 @@ export function Header() {
     const location = useLocation();
 
     const isActive = (path: string) => location.pathname === path;
+    const isRolesActive = () => location.pathname === '/roles' || location.pathname.startsWith('/roles/');
 
 
     return (
@@ -33,7 +34,7 @@ export function Header() {
                             </Link>
                             <Link
                                 to="/roles"
-                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/roles')
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isRolesActive()
                                     ? 'bg-primary text-primary-foreground'
                                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                     }`}
