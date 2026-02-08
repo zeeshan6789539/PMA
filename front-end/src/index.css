@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(222.2 84% 4.9%);
+  --color-primary: hsl(222.2 47.4% 11.2%);
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(210 40% 96.1%);
+  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-muted: hsl(210 40% 96.1%);
+  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --color-accent: hsl(210 40% 96.1%);
+  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(214.3 31.8% 91.4%);
+  --color-input: hsl(214.3 31.8% 91.4%);
+  --color-ring: hsl(222.2 84% 4.9%);
+  --radius: 0.5rem;
+
+  --color-dark-background: hsl(222.2 84% 4.9%);
+  --color-dark-foreground: hsl(210 40% 98%);
+  --color-dark-card: hsl(222.2 84% 4.9%);
+  --color-dark-card-foreground: hsl(210 40% 98%);
+  --color-dark-popover: hsl(222.2 84% 4.9%);
+  --color-dark-popover-foreground: hsl(210 40% 98%);
+  --color-dark-primary: hsl(210 40% 98%);
+  --color-dark-primary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-dark-secondary: hsl(217.2 32.6% 17.5%);
+  --color-dark-secondary-foreground: hsl(210 40% 98%);
+  --color-dark-muted: hsl(217.2 32.6% 17.5%);
+  --color-dark-muted-foreground: hsl(215 20.2% 65.1%);
+  --color-dark-accent: hsl(217.2 32.6% 17.5%);
+  --color-dark-accent-foreground: hsl(210 40% 98%);
+  --color-dark-destructive: hsl(0 62.8% 30.6%);
+  --color-dark-destructive-foreground: hsl(210 40% 98%);
+  --color-dark-border: hsl(217.2 32.6% 17.5%);
+  --color-dark-input: hsl(217.2 32.6% 17.5%);
+  --color-dark-ring: hsl(212.7 26.8% 83.9%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
+
+.dark {
+  --color-background: var(--color-dark-background);
+  --color-foreground: var(--color-dark-foreground);
+  --color-card: var(--color-dark-card);
+  --color-card-foreground: var(--color-dark-card-foreground);
+  --color-popover: var(--color-dark-popover);
+  --color-popover-foreground: var(--color-dark-popover-foreground);
+  --color-primary: var(--color-dark-primary);
+  --color-primary-foreground: var(--color-dark-primary-foreground);
+  --color-secondary: var(--color-dark-secondary);
+  --color-secondary-foreground: var(--color-dark-secondary-foreground);
+  --color-muted: var(--color-dark-muted);
+  --color-muted-foreground: var(--color-dark-muted-foreground);
+  --color-accent: var(--color-dark-accent);
+  --color-accent-foreground: var(--color-dark-accent-foreground);
+  --color-destructive: var(--color-dark-destructive);
+  --color-destructive-foreground: var(--color-dark-destructive-foreground);
+  --color-border: var(--color-dark-border);
+  --color-input: var(--color-dark-input);
+  --color-ring: var(--color-dark-ring);
+}
