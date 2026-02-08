@@ -203,6 +203,8 @@ export const rolesApi = {
 export interface PermissionResponse {
     id: string;
     name: string;
+    action: string;
+    resource: string;
     description?: string;
     createdAt: string;
     updatedAt: string;

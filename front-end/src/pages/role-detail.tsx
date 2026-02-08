@@ -95,21 +95,21 @@ export function RoleDetailPage() {
         <div className="container mx-auto py-6 px-4">
             <Breadcrumb items={[{ label: 'Roles', href: '/roles' }, { label: role?.name || 'Role Details' }]} className="mb-6" />
 
-            <Card className="border-slate-200 shadow-sm">
-                <CardHeader className="border-b bg-slate-50/50 py-4">
+            <Card className="border-border shadow-sm">
+                <CardHeader className="border-b bg-secondary/50 py-4">
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Shield className="h-5 w-5 text-indigo-600" />
-                            <span className="text-slate-800">Permissions</span>
+                            <Shield className="h-5 w-5 text-primary" />
+                            <span className="text-foreground">Permissions</span>
                         </div>
-                        <Button onClick={handleSavePermissions} disabled={isSaving} className="bg-indigo-600 hover:bg-indigo-700">
+                        <Button onClick={handleSavePermissions} disabled={isSaving} className="bg-primary hover:bg-primary/90">
                             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Save Changes
                         </Button>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
-                    <div className="divide-y divide-slate-100">
+                <CardContent className="p-0 bg-card">
+                    <div className="divide-y divide-border">
                         {categorizedPermissions.map((group) => {
                             const isExpanded = expandedGroups.has(group.resource);
                             const selectedCount = group.permissions.filter(p => selectedPermissions.includes(p.id)).length;
@@ -119,11 +119,11 @@ export function RoleDetailPage() {
                                 <div key={group.resource} className="p-4">
                                     <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleGroup(group.resource)}>
                                         <div className="flex items-center gap-2">
-                                            {isExpanded ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
-                                            <h3 className="font-bold text-sm text-slate-700 capitalize">{group.resource} Management</h3>
-                                            <span className="text-xs text-slate-400">({selectedCount} of {group.permissions.length} actions enabled)</span>
+                                            {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                                            <h3 className="font-bold text-sm text-foreground capitalize">{group.resource} Management</h3>
+                                            <span className="text-xs text-muted-foreground">({selectedCount} of {group.permissions.length} actions enabled)</span>
                                         </div>
-                                        <Button variant="ghost" size="sm" className="h-7 text-xs text-indigo-600 hover:text-indigo-700 font-bold" onClick={(e) => { e.stopPropagation(); selectAllInGroup(group.permissions); }}>
+                                        <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary/80 font-bold" onClick={(e) => { e.stopPropagation(); selectAllInGroup(group.permissions); }}>
                                             {isFullySelected ? 'Deselect All' : 'Select All'}
                                         </Button>
                                     </div>
@@ -134,12 +134,12 @@ export function RoleDetailPage() {
                                             {group.permissions.map((p) => {
                                                 const isSelected = selectedPermissions.includes(p.id);
                                                 return (
-                                                    <div key={p.id} onClick={() => togglePermission(p.id)} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${isSelected ? 'border-indigo-200 bg-indigo-50/30' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                                                    <div key={p.id} onClick={() => togglePermission(p.id)} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${isSelected ? 'border-primary/30 bg-secondary/50' : 'border-border bg-card hover:border-primary/20'}`}>
                                                         <div className="flex flex-col overflow-hidden">
-                                                            <span className="text-xs font-bold text-slate-700 capitalize truncate">{p.action}</span>
-                                                            <span className="text-[10px] text-slate-500 truncate">{p.description}</span>
+                                                            <span className="text-xs font-bold text-foreground capitalize truncate">{p.action}</span>
+                                                            <span className="text-[10px] text-muted-foreground truncate">{p.description}</span>
                                                         </div>
-                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${isSelected ? 'bg-indigo-600' : 'bg-slate-200'}`}>
+                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${isSelected ? 'bg-primary' : 'bg-muted'}`}>
                                                             <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${isSelected ? 'translate-x-5' : 'translate-x-1'}`} />
                                                         </div>
                                                     </div>
