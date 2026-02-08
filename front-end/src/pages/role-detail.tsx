@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { rolesApi, permissionsApi, type RoleResponse, type PermissionResponse, type RolePermission } from '@/lib/api';
+import { rolesApi, permissionsApi, type RoleResponse, type PermissionResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,20 @@ export function RoleDetailPage() {
             ]);
             setRole(roleRes.data.data);
             setAllPermissions(permissionsRes.data.data);
-            const permIds = roleRes.data.data.permissions?.map((p: RolePermission) => p.id) || [];
+            // Extract permission IDs from grouped format { user: { create: true, ... } }
+            const groupedPermissions = roleRes.data.data.permissions || {};
+            const permIds: string[] = [];
+            Object.entries(groupedPermissions).forEach(([resource, actions]) => {
+                Object.entries(actions as Record<string, boolean>).forEach(([action, enabled]) => {
+                    if (enabled) {
+                        // Find matching permission ID from allPermissions
+                        const perm = permissionsRes.data.data.find(
+                            (p: PermissionResponse) => p.resource === resource && p.action === action
+                        );
+                        if (perm) permIds.push(perm.id);
+                    }
+                });
+            });
             setOriginalPermissions(permIds);
             setSelectedPermissions(permIds);
             // Expand all by default to show the grid

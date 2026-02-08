@@ -1,6 +1,21 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+// Create a simple event bus for loading state (works outside React context)
+type LoadingCallback = (loading: boolean) => void;
+const loadingListeners: Set<LoadingCallback> = new Set();
+
+export const setGlobalLoading = (loading: boolean) => {
+    loadingListeners.forEach((callback) => callback(loading));
+};
+
+export const onLoadingChange = (callback: LoadingCallback) => {
+    loadingListeners.add(callback);
+    return () => {
+        loadingListeners.delete(callback);
+    };
+};
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -9,24 +24,82 @@ export const api = axios.create({
     },
 });
 
+// Track active requests for smart loading state
+let activeRequests = 0;
+
 // Add auth token to requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Show loading for non-ignored requests
+    const customConfig = config as InternalAxiosRequestConfig & { _hideLoading?: boolean };
+    if (!customConfig._hideLoading) {
+        activeRequests++;
+        if (activeRequests === 1) {
+            setGlobalLoading(true);
+        }
+    }
+
     return config;
 });
 
-// Handle auth errors
+// Handle auth errors and loading
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Hide loading
+        const customConfig = response.config as InternalAxiosRequestConfig & { _hideLoading?: boolean };
+        if (!customConfig._hideLoading) {
+            activeRequests--;
+            if (activeRequests === 0) {
+                setGlobalLoading(false);
+            }
+        }
+
+        return response;
+    },
     (error) => {
+        // Hide loading
+        const customConfig = error.config as InternalAxiosRequestConfig & { _hideLoading?: boolean };
+        if (customConfig && !customConfig._hideLoading) {
+            activeRequests--;
+            if (activeRequests === 0) {
+                setGlobalLoading(false);
+            }
+        }
+
+        // Handle 403 Super admin access required error
+        if (error.response?.status === 403) {
+            const errorData = error.response?.data;
+            const isSuperAdminError = errorData?.message === 'Super admin access required' ||
+                errorData?.status === 'fail';
+
+            if (isSuperAdminError) {
+                // Clear auth data
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('permissions');
+
+                // Redirect to login
+                window.location.href = '/login';
+                return Promise.reject(error);
+            }
+        }
+
+        // Handle 401 Unauthorized
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             localStorage.removeItem('permissions');
+
+            // Only redirect if not already on login page
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+            }
         }
+
         return Promise.reject(error);
     }
 );

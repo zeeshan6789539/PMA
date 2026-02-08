@@ -4,6 +4,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Layout, AuthLayout } from '@/components/layout';
 import { ProtectedRoute } from '@/components/protected-route';
 import { AuthProvider } from '@/context/auth-context';
+import { LoadingProvider } from '@/context/loading-context';
+import { GlobalLoading } from '@/components/global-loading';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { ChangePasswordPage } from '@/pages/change-password';
@@ -19,22 +21,25 @@ function App() {
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Toaster position="top-right" />
         <AuthProvider>
-          <Routes>
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginPage />} />
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route element={<Layout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/users" element={<UsersPage />} />
-                <Route path="/roles" element={<RolesPage />} />
-                <Route path="/roles/:id" element={<RoleDetailPage />} />
-                <Route path="/permissions" element={<PermissionsPage />} />
-                <Route path="/change-password" element={<ChangePasswordPage />} />
+          <LoadingProvider>
+            <GlobalLoading />
+            <Routes>
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<LoginPage />} />
               </Route>
-            </Route>
-          </Routes>
+              <Route element={<ProtectedRoute />}>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/users" element={<UsersPage />} />
+                  <Route path="/roles" element={<RolesPage />} />
+                  <Route path="/roles/:id" element={<RoleDetailPage />} />
+                  <Route path="/permissions" element={<PermissionsPage />} />
+                  <Route path="/change-password" element={<ChangePasswordPage />} />
+                </Route>
+              </Route>
+            </Routes>
+          </LoadingProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
