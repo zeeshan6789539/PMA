@@ -1,22 +1,13 @@
-import { Moon, Sun, User, LogOut, Users, Shield, Lock } from 'lucide-react';
-import { useTheme } from './theme-provider';
-import { Button } from '@/components/ui/button';
+import { User, Users, Shield, Lock } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export function Header() {
-    const { theme, setTheme } = useTheme();
-    const { isAuthenticated, user, logout } = useAuth();
-    const navigate = useNavigate();
+    const { isAuthenticated, user } = useAuth();
+    const location = useLocation();
 
-    const toggleTheme = () => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
-    };
+    const isActive = (path: string) => location.pathname === path;
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
 
     return (
         <header className="border-b">
@@ -30,21 +21,30 @@ export function Header() {
                         <nav className="hidden md:flex items-center gap-1">
                             <Link
                                 to="/users"
-                                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors flex items-center gap-2"
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/users')
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                    }`}
                             >
                                 <Users className="h-4 w-4" />
                                 Users
                             </Link>
                             <Link
                                 to="/roles"
-                                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors flex items-center gap-2"
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/roles')
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                    }`}
                             >
                                 <Shield className="h-4 w-4" />
                                 Roles
                             </Link>
                             <Link
                                 to="/permissions"
-                                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors flex items-center gap-2"
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/permissions')
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                    }`}
                             >
                                 <Lock className="h-4 w-4" />
                                 Permissions
@@ -54,26 +54,16 @@ export function Header() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={toggleTheme}>
-                        {theme === 'dark' ? (
-                            <Sun className="h-5 w-5" />
-                        ) : (
-                            <Moon className="h-5 w-5" />
-                        )}
-                        <span className="sr-only">Toggle theme</span>
-                    </Button>
-
                     {isAuthenticated && (
-                        <div className="flex items-center gap-4">
-                            <div className="hidden sm:flex items-center gap-2 text-sm">
-                                <User className="h-4 w-4" />
-                                <span className="text-muted-foreground">{user?.name}</span>
-                            </div>
-                            <Button variant="outline" size="sm" onClick={handleLogout}>
-                                <LogOut className="h-4 w-4 sm:mr-2" />
-                                <span className="hidden sm:inline">Logout</span>
-                            </Button>
-                        </div>
+                        <Link
+                            to="/profile"
+                            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${isActive('/profile')
+                                ? 'bg-primary text-primary-foreground'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                }`}
+                        >
+                            <User className="h-4 w-4" />
+                        </Link>
                     )}
                 </div>
             </div>
