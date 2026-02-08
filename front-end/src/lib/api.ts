@@ -67,6 +67,7 @@ export interface Permissions {
         read?: boolean;
         update?: boolean;
         delete?: boolean;
+        manage?: boolean;
     };
 }
 

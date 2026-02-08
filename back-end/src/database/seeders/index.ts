@@ -41,8 +41,12 @@ export const seedPermissions = async () => {
     { name: 'role:update', resource: 'role', action: 'update', description: 'Can update roles' },
     { name: 'role:delete', resource: 'role', action: 'delete', description: 'Can delete roles' },
 
-    // Permission views
+    // Permission permissions
+    { name: 'permission:create', resource: 'permission', action: 'create', description: 'Can create new permissions' },
     { name: 'permission:read', resource: 'permission', action: 'read', description: 'Can view permissions' },
+    { name: 'permission:update', resource: 'permission', action: 'update', description: 'Can update permissions' },
+    { name: 'permission:delete', resource: 'permission', action: 'delete', description: 'Can delete permissions' },
+    { name: 'permission:manage', resource: 'permission', action: 'manage', description: 'Can assign and revoke permissions to/from roles' },
   ];
 
   for (const perm of permissionsList) {
