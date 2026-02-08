@@ -28,7 +28,8 @@ export function RoleDetailPage() {
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const { hasPermission } = useAuth();
 
-    const canUpdate = hasPermission('role', 'update');
+    const canManage = hasPermission('permission', 'manage');
+
 
     const fetchData = async () => {
         if (!id) return;
@@ -92,7 +93,7 @@ export function RoleDetailPage() {
     };
 
     const togglePermission = (permissionId: string) => {
-        if (!canUpdate) return;
+        if (!canManage) return;
         setSelectedPermissions(prev => prev.includes(permissionId) ? prev.filter(id => id !== permissionId) : [...prev, permissionId]);
     };
 
@@ -105,7 +106,7 @@ export function RoleDetailPage() {
     };
 
     const selectAllInGroup = (permissions: PermissionResponse[]) => {
-        if (!canUpdate) return;
+        if (!canManage) return;
         const pIds = permissions.map(p => p.id);
         const allIn = pIds.every(id => selectedPermissions.includes(id));
         setSelectedPermissions(prev => allIn ? prev.filter(id => !pIds.includes(id)) : [...new Set([...prev, ...pIds])]);
@@ -137,7 +138,7 @@ export function RoleDetailPage() {
                             <Shield className="h-5 w-5 text-primary" />
                             <span className="text-foreground">Permissions</span>
                         </div>
-                        {canUpdate && (
+                        {canManage && (
                             <Button onClick={handleSavePermissions} disabled={isSaving} className="bg-primary hover:bg-primary/90">
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Save Changes
@@ -160,7 +161,7 @@ export function RoleDetailPage() {
                                             <h3 className="font-bold text-sm text-foreground capitalize">{group.resource} Management</h3>
                                             <span className="text-xs text-muted-foreground">({selectedCount} of {group.permissions.length} actions enabled)</span>
                                         </div>
-                                        {canUpdate && (
+                                        {canManage && (
                                             <Button variant="ghost" size="sm" className="h-7 text-xs text-primary hover:text-primary/80 font-bold" onClick={(e) => { e.stopPropagation(); selectAllInGroup(group.permissions); }}>
                                                 {isFullySelected ? 'Deselect All' : 'Select All'}
                                             </Button>
@@ -173,12 +174,12 @@ export function RoleDetailPage() {
                                             {group.permissions.map((p) => {
                                                 const isSelected = selectedPermissions.includes(p.id);
                                                 return (
-                                                    <div key={p.id} onClick={() => togglePermission(p.id)} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${canUpdate ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'} ${isSelected ? 'border-primary/30 bg-secondary/50' : 'border-border bg-card hover:border-primary/20'}`}>
+                                                    <div key={p.id} onClick={() => togglePermission(p.id)} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${canManage ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'} ${isSelected ? 'border-primary/30 bg-secondary/50' : 'border-border bg-card hover:border-primary/20'}`}>
                                                         <div className="flex flex-col overflow-hidden">
                                                             <span className="text-xs font-bold text-foreground capitalize truncate">{p.action}</span>
                                                             <span className="text-[10px] text-muted-foreground truncate">{p.description}</span>
                                                         </div>
-                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 transition-colors ${isSelected ? 'bg-primary border-primary' : 'bg-muted dark:bg-muted-foreground/20 border-muted-foreground/30'} ${!canUpdate && 'opacity-50'}`}>
+                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 transition-colors ${isSelected ? 'bg-primary border-primary' : 'bg-muted dark:bg-muted-foreground/20 border-muted-foreground/30'} ${!canManage && 'opacity-50'}`}>
                                                             <span className={`inline-block h-3 w-3 transform rounded-full shadow-sm transition-transform ${isSelected ? `translate-x-5 ${theme === 'dark' ? 'bg-dark-background' : 'bg-white'}` : 'translate-x-0.5 bg-muted-foreground'}`} />
                                                         </div>
                                                     </div>
