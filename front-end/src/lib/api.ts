@@ -148,9 +148,15 @@ export interface Role {
     updatedAt: string;
 }
 
+export interface RolePermission {
+    id: string;
+    name: string;
+}
+
 export interface RoleResponse {
     id: string;
     name: string;
+    permissions?: RolePermission[];
     permissionCount: number;
     createdAt: string;
     updatedAt: string;
