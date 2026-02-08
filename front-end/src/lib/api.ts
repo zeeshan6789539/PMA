@@ -151,7 +151,7 @@ export interface Role {
 export interface RoleResponse {
     id: string;
     name: string;
-    permissions?: PermissionResponse[];
+    permissionCount: number;
     createdAt: string;
     updatedAt: string;
 }

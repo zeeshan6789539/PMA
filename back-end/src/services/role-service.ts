@@ -1,4 +1,4 @@
-import { eq, desc, inArray, and } from 'drizzle-orm';
+import { eq, desc, inArray, and, sql } from 'drizzle-orm';
 import { db } from '@/config/database';
 import { roles, permissions, rolePermissions } from '@/database/schema';
 
@@ -9,6 +9,22 @@ export type PermissionSummary = {
   action: string;
   description?: string | null;
 };
+
+/** List all roles with their permission count */
+export async function listWithPermissionCounts() {
+  return db
+    .select({
+      id: roles.id,
+      name: roles.name,
+      createdAt: roles.createdAt,
+      updatedAt: roles.updatedAt,
+      permissionCount: sql<number>`count(${rolePermissions.permissionId})`,
+    })
+    .from(roles)
+    .leftJoin(rolePermissions, eq(roles.id, rolePermissions.roleId))
+    .groupBy(roles.id)
+    .orderBy(desc(roles.createdAt));
+}
 
 /** List all roles */
 export async function list() {

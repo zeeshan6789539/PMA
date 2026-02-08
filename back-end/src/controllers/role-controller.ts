@@ -6,7 +6,7 @@ import { roleService } from '@/services';
 
 /** List all roles */
 export const list = asyncHandler(async (req: Request, res: Response) => {
-  const items = await roleService.list();
+  const items = await roleService.listWithPermissionCounts();
   return ResponseHandler.success(res, 'Roles retrieved successfully', items);
 });
 

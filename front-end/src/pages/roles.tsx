@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { rolesApi, permissionsApi, type RoleResponse, type CreateRoleRequest, type UpdateRoleRequest, type PermissionResponse } from '@/lib/api';
+import { rolesApi, type RoleResponse, type CreateRoleRequest, type UpdateRoleRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -27,12 +27,8 @@ export function RolesPage() {
     const fetchData = async () => {
         try {
             setIsLoading(true);
-            const [rolesRes, permissionsRes] = await Promise.all([
-                rolesApi.list(),
-                permissionsApi.list(),
-            ]);
+            const rolesRes = await rolesApi.list();
             setRoles(rolesRes.data.data);
-            setPermissions(permissionsRes.data.data);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to fetch data';
             showError(message, errorToastOptions);
@@ -70,7 +66,7 @@ export function RolesPage() {
 
     const handleEdit = (role: RoleResponse) => {
         setEditingRole(role);
-        setSelectedPermissions(role.permissions?.map(p => p.id) || []);
+        setSelectedPermissions([]);
         setFormData({ name: role.name });
         setShowForm(true);
     };
@@ -219,7 +215,7 @@ export function RolesPage() {
                                             </div>
                                         </td>
                                         <td className="p-4 text-muted-foreground">
-                                            {role.permissions?.length || 0} permissions
+                                            {typeof role.permissionCount === 'number' ? role.permissionCount : parseInt(role.permissionCount) || 0} permissions
                                         </td>
                                         <td className="p-4 text-muted-foreground">
                                             {new Date(role.createdAt).toLocaleDateString()}
