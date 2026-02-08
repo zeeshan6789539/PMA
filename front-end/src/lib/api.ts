@@ -212,11 +212,15 @@ export interface PermissionResponse {
 
 export interface CreatePermissionRequest {
     name: string;
+    resource: string;
+    action: string;
     description?: string;
 }
 
 export interface UpdatePermissionRequest {
     name: string;
+    resource: string;
+    action: string;
     description?: string;
 }
 
