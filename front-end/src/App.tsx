@@ -6,6 +6,9 @@ import { AuthProvider } from '@/context/auth-context';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { ChangePasswordPage } from '@/pages/change-password';
+import { UsersPage } from '@/pages/users';
+import { RolesPage } from '@/pages/roles';
+import { PermissionsPage } from '@/pages/permissions';
 
 function App() {
   return (
@@ -19,6 +22,9 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/users" element={<UsersPage />} />
+                <Route path="/roles" element={<RolesPage />} />
+                <Route path="/permissions" element={<PermissionsPage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
               </Route>
             </Route>

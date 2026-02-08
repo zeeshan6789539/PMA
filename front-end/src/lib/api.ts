@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -79,4 +79,152 @@ export const authApi = {
 
     changePassword: (data: ChangePasswordRequest) =>
         api.post<ApiResponse<void>>('/auth/change-password', data),
+};
+
+// User types
+export interface UserResponse {
+    id: string;
+    name: string;
+    email: string;
+    roleId: string | null;
+    role?: Role | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateUserRequest {
+    name: string;
+    email: string;
+    password: string;
+    roleId?: string;
+    isActive?: boolean;
+}
+
+export interface UpdateUserRequest {
+    name?: string;
+    email?: string;
+    password?: string;
+    roleId?: string;
+    isActive?: boolean;
+}
+
+export interface Pagination {
+    page: number;
+    limit: number;
+    total: number;
+}
+
+export interface PaginatedUsersResponse {
+    users: UserResponse[];
+    pagination: Pagination;
+}
+
+// User API calls
+export const usersApi = {
+    list: (page = 1, limit = 10, search?: string) =>
+        api.get<ApiResponse<PaginatedUsersResponse>>('/users', {
+            params: { page, limit, search },
+        }),
+
+    getById: (id: string) =>
+        api.get<ApiResponse<UserResponse>>(`/users/${id}`),
+
+    create: (data: CreateUserRequest) =>
+        api.post<ApiResponse<UserResponse>>('/users', data),
+
+    update: (id: string, data: UpdateUserRequest) =>
+        api.put<ApiResponse<UserResponse>>(`/users/${id}`, data),
+
+    delete: (id: string) =>
+        api.delete<ApiResponse<void>>(`/users/${id}`),
+};
+
+// Role types
+export interface Role {
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface RoleResponse {
+    id: string;
+    name: string;
+    permissions?: PermissionResponse[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateRoleRequest {
+    name: string;
+}
+
+export interface UpdateRoleRequest {
+    name: string;
+}
+
+export interface AssignPermissionsRequest {
+    permissionIds: string[];
+}
+
+// Role API calls
+export const rolesApi = {
+    list: () =>
+        api.get<ApiResponse<Role[]>>('/roles'),
+
+    getById: (id: string) =>
+        api.get<ApiResponse<RoleResponse>>(`/roles/${id}`),
+
+    create: (data: CreateRoleRequest) =>
+        api.post<ApiResponse<RoleResponse>>('/roles', data),
+
+    update: (id: string, data: UpdateRoleRequest) =>
+        api.put<ApiResponse<RoleResponse>>(`/roles/${id}`, data),
+
+    delete: (id: string) =>
+        api.delete<ApiResponse<void>>(`/roles/${id}`),
+
+    assignPermissions: (id: string, data: AssignPermissionsRequest) =>
+        api.post<ApiResponse<RoleResponse>>(`/roles/${id}/permissions`, data),
+
+    removePermissions: (id: string, data: AssignPermissionsRequest) =>
+        api.delete<ApiResponse<RoleResponse>>(`/roles/${id}/permissions`, { data }),
+};
+
+// Permission types
+export interface PermissionResponse {
+    id: string;
+    name: string;
+    description?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreatePermissionRequest {
+    name: string;
+    description?: string;
+}
+
+export interface UpdatePermissionRequest {
+    name: string;
+    description?: string;
+}
+
+// Permission API calls
+export const permissionsApi = {
+    list: () =>
+        api.get<ApiResponse<PermissionResponse[]>>('/permissions'),
+
+    getById: (id: string) =>
+        api.get<ApiResponse<PermissionResponse>>(`/permissions/${id}`),
+
+    create: (data: CreatePermissionRequest) =>
+        api.post<ApiResponse<PermissionResponse>>('/permissions', data),
+
+    update: (id: string, data: UpdatePermissionRequest) =>
+        api.put<ApiResponse<PermissionResponse>>(`/permissions/${id}`, data),
+
+    delete: (id: string) =>
+        api.delete<ApiResponse<void>>(`/permissions/${id}`),
 };
