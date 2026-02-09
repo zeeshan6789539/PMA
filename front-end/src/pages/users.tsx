@@ -23,6 +23,7 @@ export function UsersPage() {
         email: '',
         password: '',
         roleId: '',
+        isActive: true,
     });
     const [roles, setRoles] = useState<Role[]>([]);
     const { hasPermission } = useAuth();
@@ -73,7 +74,7 @@ export function UsersPage() {
             }
             setShowForm(false);
             setEditingUser(null);
-            setFormData({ name: '', email: '', password: '', roleId: '' });
+            setFormData({ name: '', email: '', password: '', roleId: '', isActive: true });
             fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save user';
@@ -89,6 +90,7 @@ export function UsersPage() {
             name: user.name,
             email: user.email,
             roleId: user.roleId || '',
+            isActive: user.isActive,
         });
         setShowForm(true);
     };
@@ -126,7 +128,7 @@ export function UsersPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '', roleId: '' }); }}>
+                        <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '', roleId: '', isActive: true }); }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add User
                         </Button>
@@ -141,7 +143,7 @@ export function UsersPage() {
                         setShowForm(open);
                         if (!open) {
                             setEditingUser(null);
-                            setFormData({ name: '', email: '', password: '' });
+                            setFormData({ name: '', email: '', password: '', roleId: '', isActive: true });
                         }
                     }}
                     title={editingUser ? 'Edit User' : 'Create User'}
@@ -195,13 +197,31 @@ export function UsersPage() {
                                     ))}
                                 </select>
                             </div>
+                            {editingUser && (
+                                <div className="flex items-center space-x-2">
+                                    <Label htmlFor="isActive">Status</Label>
+                                    <button
+                                        type="button"
+                                        id="isActive"
+                                        onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${formData.isActive ? 'bg-primary' : 'bg-gray-200'
+                                            }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isActive ? 'translate-x-6' : 'translate-x-1'
+                                                }`}
+                                        />
+                                    </button>
+                                    <span className="text-sm">{formData.isActive ? 'Active' : 'Inactive'}</span>
+                                </div>
+                            )}
                         </div>
                         <div className="flex gap-2 justify-end pt-4">
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                 {editingUser ? 'Update' : 'Create'}
                             </Button>
-                            <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingUser(null); }}>
+                            <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingUser(null); setFormData({ name: '', email: '', password: '', roleId: '', isActive: true }); }}>
                                 Cancel
                             </Button>
                         </div>
