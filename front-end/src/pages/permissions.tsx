@@ -44,12 +44,7 @@ export function PermissionsPage() {
             setIsLoading(true);
             const response = await permissionsApi.list();
             setPermissions(response.data.data);
-            // Expand all by default
-            const groups = response.data.data.reduce((acc: Set<string>, p: PermissionResponse) => {
-                acc.add(p.resource || 'Other');
-                return acc;
-            }, new Set<string>());
-            setExpandedGroups(groups);
+            // Groups start collapsed by default
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to fetch permissions';
             showError(message, errorToastOptions);

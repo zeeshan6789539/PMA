@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
+import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
@@ -120,57 +121,62 @@ export function UsersPage() {
             </div>
 
             {showForm && (
-                <Card className="mb-6">
-                    <CardHeader>
-                        <CardTitle>{editingUser ? 'Edit User' : 'Create User'}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Dialog
+                    open={showForm}
+                    onOpenChange={(open) => {
+                        setShowForm(open);
+                        if (!open) {
+                            setEditingUser(null);
+                            setFormData({ name: '', email: '', password: '' });
+                        }
+                    }}
+                    title={editingUser ? 'Edit User' : 'Create User'}
+                >
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input
+                                    id="name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            {!editingUser && (
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="password">Password</Label>
                                     <Input
-                                        id="name"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        required
+                                        id="password"
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        required={!editingUser}
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                {!editingUser && (
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="password">Password</Label>
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            value={formData.password}
-                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            required={!editingUser}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex gap-2">
-                                <Button type="submit" disabled={isLoading}>
-                                    {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                    {editingUser ? 'Update' : 'Create'}
-                                </Button>
-                                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingUser(null); }}>
-                                    Cancel
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
+                            )}
+                        </div>
+                        <div className="flex gap-2 justify-end pt-4">
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                {editingUser ? 'Update' : 'Create'}
+                            </Button>
+                            <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingUser(null); }}>
+                                Cancel
+                            </Button>
+                        </div>
+                    </form>
+                </Dialog>
             )}
 
             {isLoading && !users.length ? (
