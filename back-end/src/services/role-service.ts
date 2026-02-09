@@ -1,6 +1,7 @@
 import { eq, desc, inArray, and, sql } from 'drizzle-orm';
 import { db } from '@/config/database';
 import { roles, permissions, rolePermissions } from '@/database/schema';
+import { users } from '@/database/schema/users';
 
 export type PermissionSummary = {
   id: string;
@@ -29,7 +30,7 @@ export function transformPermissionsToGroupedFormat(permissions: PermissionSumma
   return grouped;
 }
 
-/** List all roles with their permission count */
+/** List all roles with their permission count and user count */
 export async function listWithPermissionCounts() {
   return db
     .select({
@@ -37,10 +38,12 @@ export async function listWithPermissionCounts() {
       name: roles.name,
       createdAt: roles.createdAt,
       updatedAt: roles.updatedAt,
-      permissionCount: sql<number>`count(${rolePermissions.permissionId})`,
+      permissionCount: sql<number>`count(distinct ${rolePermissions.permissionId})`,
+      userCount: sql<number>`count(distinct ${users.id})`,
     })
     .from(roles)
     .leftJoin(rolePermissions, eq(roles.id, rolePermissions.roleId))
+    .leftJoin(users, eq(roles.id, users.roleId))
     .groupBy(roles.id)
     .orderBy(desc(roles.createdAt));
 }

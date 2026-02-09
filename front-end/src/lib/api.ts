@@ -232,6 +232,7 @@ export interface Role {
     id: string;
     name: string;
     permissionCount?: number;
+    userCount?: number;
     createdAt: string;
     updatedAt: string;
     permissions?: {
