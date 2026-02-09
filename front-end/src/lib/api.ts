@@ -173,6 +173,7 @@ export interface UserResponse {
     name: string;
     email: string;
     roleId: string | null;
+    roleName?: string | null;
     role?: Role | null;
     isActive: boolean;
     createdAt: string;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usersApi, type UserResponse, type CreateUserRequest, type UpdateUserRequest } from '@/lib/api';
+import { usersApi, rolesApi, type UserResponse, type CreateUserRequest, type UpdateUserRequest, type Role } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,9 @@ export function UsersPage() {
         name: '',
         email: '',
         password: '',
+        roleId: '',
     });
+    const [roles, setRoles] = useState<Role[]>([]);
     const { hasPermission } = useAuth();
 
     const canCreate = hasPermission('user', 'create');
@@ -43,8 +45,19 @@ export function UsersPage() {
         }
     };
 
+    const fetchRoles = async () => {
+        try {
+            const response = await rolesApi.list();
+            setRoles(response.data?.data || []);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Failed to fetch roles';
+            showError(message, errorToastOptions);
+        }
+    };
+
     useEffect(() => {
         fetchUsers();
+        fetchRoles();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +73,7 @@ export function UsersPage() {
             }
             setShowForm(false);
             setEditingUser(null);
-            setFormData({ name: '', email: '', password: '' });
+            setFormData({ name: '', email: '', password: '', roleId: '' });
             fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save user';
@@ -75,6 +88,7 @@ export function UsersPage() {
         setFormData({
             name: user.name,
             email: user.email,
+            roleId: user.roleId || '',
         });
         setShowForm(true);
     };
@@ -112,7 +126,7 @@ export function UsersPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '' }); }}>
+                        <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '', roleId: '' }); }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add User
                         </Button>
@@ -165,6 +179,22 @@ export function UsersPage() {
                                     />
                                 </div>
                             )}
+                            <div className="space-y-2">
+                                <Label htmlFor="roleId">Role</Label>
+                                <select
+                                    id="roleId"
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                    value={formData.roleId || ''}
+                                    onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
+                                >
+                                    <option value="">Select a role</option>
+                                    {roles.map((role) => (
+                                        <option key={role.id} value={role.id}>
+                                            {role.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         <div className="flex gap-2 justify-end pt-4">
                             <Button type="submit" disabled={isLoading}>
@@ -191,6 +221,7 @@ export function UsersPage() {
                                 <tr className="border-b bg-muted/50">
                                     <th className="text-left p-4 font-medium">Name</th>
                                     <th className="text-left p-4 font-medium">Email</th>
+                                    <th className="text-left p-4 font-medium">Role</th>
                                     <th className="text-left p-4 font-medium">Status</th>
                                     <th className="text-left p-4 font-medium">Created At</th>
                                     <th className="text-right p-4 font-medium">Actions</th>
@@ -201,6 +232,9 @@ export function UsersPage() {
                                     <tr key={user.id} className="border-b">
                                         <td className="p-4">{user.name}</td>
                                         <td className="p-4">{user.email}</td>
+                                        <td className="p-4">
+                                            {user.roleName || 'No Role'}
+                                        </td>
                                         <td className="p-4">
                                             <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                                 {user.isActive ? 'Active' : 'Inactive'}
