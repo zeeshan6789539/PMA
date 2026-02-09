@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
+import { formatDate } from '@/utils/helper';
 import { rolesApi, type Role, type CreateRoleRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -152,7 +153,7 @@ export function RolesPage() {
                                             {role.userCount || 0} users
                                         </td>
                                         <td className="p-4 text-muted-foreground">
-                                            {new Date(role.createdAt).toLocaleDateString()}
+                                            {formatDate(role.createdAt)}
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex justify-end gap-2">

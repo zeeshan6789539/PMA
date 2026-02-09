@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { formatDate } from '@/utils/helper';
 import { permissionsApi, type PermissionResponse, type CreatePermissionRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -222,7 +223,7 @@ export function PermissionsPage() {
                                                             <code className="text-xs font-bold text-foreground truncate">{permission.name}</code>
                                                             <span className="text-[10px] text-muted-foreground truncate">{permission.description || '-'}</span>
                                                             <span className="text-[10px] text-muted-foreground truncate">
-                                                                {new Date(permission.createdAt).toLocaleDateString()}
+                                                                {formatDate(permission.createdAt)}
                                                             </span>
                                                         </div>
                                                         <div className="flex gap-1">

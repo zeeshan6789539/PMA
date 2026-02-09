@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate } from '@/utils/helper';
 import { usersApi, rolesApi, type UserResponse, type CreateUserRequest, type UpdateUserRequest, type Role } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -261,7 +262,7 @@ export function UsersPage() {
                                             </span>
                                         </td>
                                         <td className="p-4 text-muted-foreground">
-                                            {new Date(user.createdAt).toLocaleDateString()}
+                                            {formatDate(user.createdAt)}
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex justify-end gap-2">
