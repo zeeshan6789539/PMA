@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
+import { ToggleButton } from '@/components/ui/toggle-button';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
@@ -201,18 +202,10 @@ export function UsersPage() {
                             {editingUser && (
                                 <div className="flex items-center space-x-2">
                                     <Label htmlFor="isActive">Status</Label>
-                                    <button
-                                        type="button"
-                                        id="isActive"
+                                    <ToggleButton
+                                        isActive={formData.isActive ?? false}
                                         onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${formData.isActive ? 'bg-primary' : 'bg-gray-200'
-                                            }`}
-                                    >
-                                        <span
-                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData.isActive ? 'translate-x-6' : 'translate-x-1'
-                                                }`}
-                                        />
-                                    </button>
+                                    />
                                     <span className="text-sm">{formData.isActive ? 'Active' : 'Inactive'}</span>
                                 </div>
                             )}

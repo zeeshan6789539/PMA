@@ -6,6 +6,7 @@ import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ToggleButton } from '@/components/ui/toggle-button';
 import { useTheme } from '@/components/theme-provider';
 import { Loader2, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
@@ -174,14 +175,17 @@ export function RoleDetailPage() {
                                             {group.permissions.map((p) => {
                                                 const isSelected = selectedPermissions.includes(p.id);
                                                 return (
-                                                    <div key={p.id} onClick={() => togglePermission(p.id)} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${canManage ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'} ${isSelected ? 'border-primary/30 bg-secondary/50' : 'border-border bg-card hover:border-primary/20'}`}>
+                                                    <div key={p.id} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${canManage ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'} ${isSelected ? 'border-primary/30 bg-secondary/50' : 'border-border bg-card hover:border-primary/20'}`}>
                                                         <div className="flex flex-col overflow-hidden">
                                                             <span className="text-xs font-bold text-foreground capitalize truncate">{p.action}</span>
                                                             <span className="text-[10px] text-muted-foreground truncate">{p.description}</span>
                                                         </div>
-                                                        <div className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 transition-colors ${isSelected ? 'bg-primary border-primary' : 'bg-muted dark:bg-muted-foreground/20 border-muted-foreground/30'} ${!canManage && 'opacity-50'}`}>
-                                                            <span className={`inline-block h-3 w-3 transform rounded-full shadow-sm transition-transform ${isSelected ? `translate-x-5 ${theme === 'dark' ? 'bg-dark-background' : 'bg-white'}` : 'translate-x-0.5 bg-muted-foreground'}`} />
-                                                        </div>
+                                                        <ToggleButton
+                                                            isActive={isSelected}
+                                                            onClick={() => togglePermission(p.id)}
+                                                            size="sm"
+                                                            disabled={!canManage}
+                                                        />
                                                     </div>
                                                 );
                                             })}
