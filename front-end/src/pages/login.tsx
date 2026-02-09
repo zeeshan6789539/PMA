@@ -7,7 +7,7 @@ import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export function LoginPage() {
     const navigate = useNavigate();
