@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import type { Location } from 'react-router';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';

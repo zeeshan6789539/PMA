@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleButton } from '@/components/ui/toggle-button';
-import { useTheme } from '@/components/theme-provider';
 import { Loader2, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
@@ -18,7 +17,6 @@ interface PermissionGroup {
 
 export function RoleDetailPage() {
     const { id } = useParams<{ id: string }>();
-    const { theme } = useTheme();
     const { showSuccess, showError } = useToast();
     const [role, setRole] = useState<RoleResponse | null>(null);
     const [allPermissions, setAllPermissions] = useState<PermissionResponse[]>([]);

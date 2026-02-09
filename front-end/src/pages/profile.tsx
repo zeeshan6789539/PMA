@@ -1,4 +1,4 @@
-import { Moon, Sun, User, LogOut, Mail, Key } from 'lucide-react';
+import { Moon, Sun, LogOut, Key } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
