@@ -16,6 +16,7 @@ export function LoginPage() {
     const { showSuccess, showError } = useToast();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     if (isAuthenticated) {
@@ -67,13 +68,16 @@ export function LoginPage() {
                             label="Password"
                             htmlFor="password"
                             inputProps={{
-                                type: "password",
+                                type: showPassword ? 'text' : 'password',
                                 placeholder: "Enter your password",
                                 value: password,
                                 onChange: (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value),
                                 required: true,
                                 disabled: isLoading,
                             }}
+                            showPasswordToggle
+                            showPassword={showPassword}
+                            onTogglePassword={() => setShowPassword(!showPassword)}
                         />
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">

@@ -16,6 +16,7 @@ export function ProfilePage() {
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -103,17 +104,10 @@ export function ProfilePage() {
                             type: showCurrentPassword ? 'text' : 'password',
                             placeholder: 'Enter current password',
                         }}
-                        className="[&_input]:pr-10"
+                        showPasswordToggle
+                        showPassword={showCurrentPassword}
+                        onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
                     />
-                    <div className="relative">
-                        <button
-                            type="button"
-                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                        >
-                            {showCurrentPassword ? <LogOut className="h-4 w-4" /> : <Key className="h-4 w-4" />}
-                        </button>
-                    </div>
                     <FormField
                         label="New Password"
                         htmlFor="new-password"
@@ -121,17 +115,21 @@ export function ProfilePage() {
                             type: showNewPassword ? 'text' : 'password',
                             placeholder: 'Enter new password',
                         }}
-                        className="[&_input]:pr-10"
+                        showPasswordToggle
+                        showPassword={showNewPassword}
+                        onTogglePassword={() => setShowNewPassword(!showNewPassword)}
                     />
-                    <div className="relative">
-                        <button
-                            type="button"
-                            onClick={() => setShowNewPassword(!showNewPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                        >
-                            {showNewPassword ? <LogOut className="h-4 w-4" /> : <Key className="h-4 w-4" />}
-                        </button>
-                    </div>
+                    <FormField
+                        label="Confirm Password"
+                        htmlFor="confirm-password"
+                        inputProps={{
+                            type: showConfirmPassword ? 'text' : 'password',
+                            placeholder: 'Confirm new password',
+                        }}
+                        showPasswordToggle
+                        showPassword={showConfirmPassword}
+                        onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="outline" onClick={() => setIsPasswordModalOpen(false)}>
                             Cancel

@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Input, type InputProps } from "@/components/ui/input"
 import { ToggleButton } from "@/components/ui/toggle-button"
 import { Select } from "@/components/ui/select"
+import { Eye, EyeOff } from "lucide-react"
 
 export type FieldType = 'text' | 'email' | 'password' | 'number' | 'toggle' | 'select' | 'textarea'
 
@@ -15,6 +16,9 @@ export interface FormFieldProps {
     labelClassName?: string
     error?: string
     fieldType?: FieldType
+    showPasswordToggle?: boolean
+    showPassword?: boolean
+    onTogglePassword?: () => void
 }
 
 interface ToggleButtonProps {
@@ -38,9 +42,12 @@ interface SelectProps {
 }
 
 const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
-    ({ label, htmlFor, inputProps, className, labelClassName, error, fieldType = 'text', ...props }, ref) => {
+    ({ label, htmlFor, inputProps, className, labelClassName, error, fieldType = 'text', showPasswordToggle, showPassword, onTogglePassword, ...props }, ref) => {
         const isToggle = fieldType === 'toggle'
         const isSelect = fieldType === 'select'
+        const isPassword = (inputProps as InputProps).type === 'password'
+        const inputClassName = showPasswordToggle ? "[&_input]:pr-10" : ""
+
         return (
             <div className={cn("space-y-2", className)} {...props}>
                 <Label
@@ -59,11 +66,23 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
                         {...(inputProps as SelectProps)}
                     />
                 ) : (
-                    <Input
-                        id={htmlFor}
-                        ref={ref}
-                        {...(inputProps as InputProps)}
-                    />
+                    <div className="relative">
+                        <Input
+                            id={htmlFor}
+                            ref={ref}
+                            {...(inputProps as InputProps)}
+                            className={cn(inputClassName, (inputProps as InputProps).className)}
+                        />
+                        {showPasswordToggle && (
+                            <button
+                                type="button"
+                                onClick={onTogglePassword}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                            >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                        )}
+                    </div>
                 )}
                 {error && (
                     <p className="text-sm text-red-500">{error}</p>
