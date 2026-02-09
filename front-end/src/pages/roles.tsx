@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import { Link } from 'react-router';
 import { formatDate } from '@/utils/helper';
 import { rolesApi, type Role, type CreateRoleRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
@@ -200,15 +199,15 @@ export function RolesPage() {
             >
                 <div className="p-4">
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Role Name</Label>
-                            <Input
-                                id="name"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                required
-                            />
-                        </div>
+                        <FormField
+                            label="Role Name"
+                            htmlFor="name"
+                            inputProps={{
+                                value: formData.name,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value }),
+                                required: true,
+                            }}
+                        />
                         <div className="flex gap-2">
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

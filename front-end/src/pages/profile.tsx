@@ -6,8 +6,7 @@ import { successToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { useState } from 'react';
 
 export function ProfilePage() {
@@ -97,39 +96,41 @@ export function ProfilePage() {
                 title="Change Password"
             >
                 <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setIsPasswordModalOpen(false); }}>
-                    <div className="space-y-2">
-                        <Label htmlFor="current-password">Current Password</Label>
-                        <div className="relative">
-                            <Input
-                                id="current-password"
-                                type={showCurrentPassword ? 'text' : 'password'}
-                                placeholder="Enter current password"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                                {showCurrentPassword ? <LogOut className="h-4 w-4" /> : <Key className="h-4 w-4" />}
-                            </button>
-                        </div>
+                    <FormField
+                        label="Current Password"
+                        htmlFor="current-password"
+                        inputProps={{
+                            type: showCurrentPassword ? 'text' : 'password',
+                            placeholder: 'Enter current password',
+                        }}
+                        className="[&_input]:pr-10"
+                    />
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                        >
+                            {showCurrentPassword ? <LogOut className="h-4 w-4" /> : <Key className="h-4 w-4" />}
+                        </button>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="new-password">New Password</Label>
-                        <div className="relative">
-                            <Input
-                                id="new-password"
-                                type={showNewPassword ? 'text' : 'password'}
-                                placeholder="Enter new password"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowNewPassword(!showNewPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                                {showNewPassword ? <LogOut className="h-4 w-4" /> : <Key className="h-4 w-4" />}
-                            </button>
-                        </div>
+                    <FormField
+                        label="New Password"
+                        htmlFor="new-password"
+                        inputProps={{
+                            type: showNewPassword ? 'text' : 'password',
+                            placeholder: 'Enter new password',
+                        }}
+                        className="[&_input]:pr-10"
+                    />
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                        >
+                            {showNewPassword ? <LogOut className="h-4 w-4" /> : <Key className="h-4 w-4" />}
+                        </button>
                     </div>
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="outline" onClick={() => setIsPasswordModalOpen(false)}>

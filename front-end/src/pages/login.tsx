@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import type { Location } from 'react-router';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
@@ -52,30 +51,30 @@ export function LoginPage() {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="john@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                disabled={isLoading}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                disabled={isLoading}
-                            />
-                        </div>
+                        <FormField
+                            label="Email"
+                            htmlFor="email"
+                            inputProps={{
+                                type: "email",
+                                placeholder: "john@example.com",
+                                value: email,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
+                                required: true,
+                                disabled: isLoading,
+                            }}
+                        />
+                        <FormField
+                            label="Password"
+                            htmlFor="password"
+                            inputProps={{
+                                type: "password",
+                                placeholder: "Enter your password",
+                                value: password,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value),
+                                required: true,
+                                disabled: isLoading,
+                            }}
+                        />
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">
                         <Button type="submit" className="w-full" disabled={isLoading}>

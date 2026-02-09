@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import { formatDate } from '@/utils/helper';
 import { usersApi, rolesApi, type UserResponse, type CreateUserRequest, type UpdateUserRequest, type Role } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
-import { ToggleButton } from '@/components/ui/toggle-button';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
@@ -153,55 +150,57 @@ export function UsersPage() {
                 >
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            {!editingUser && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Password</Label>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                        required={!editingUser}
-                                    />
-                                </div>
-                            )}
-                            <Select
-                                id="roleId"
-                                label="Role"
-                                value={formData.roleId || ''}
-                                onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
-                                options={roles as { id: string | number; name: string; }[]}
-                                placeholder="Select a role"
+                            <FormField
+                                label="Name"
+                                htmlFor="name"
+                                inputProps={{
+                                    value: formData.name,
+                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value }),
+                                    required: true,
+                                }}
                             />
-                            {editingUser && (
-                                <div className="flex items-center space-x-2">
-                                    <Label htmlFor="isActive">Status</Label>
-                                    <ToggleButton
-                                        isActive={formData.isActive ?? false}
-                                        onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                                    />
-                                    <span className="text-sm">{formData.isActive ? 'Active' : 'Inactive'}</span>
-                                </div>
+                            <FormField
+                                label="Email"
+                                htmlFor="email"
+                                inputProps={{
+                                    type: "email",
+                                    value: formData.email,
+                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value }),
+                                    required: true,
+                                }}
+                            />
+                            {!editingUser && (
+                                <FormField
+                                    label="Password"
+                                    htmlFor="password"
+                                    inputProps={{
+                                        type: "password",
+                                        value: formData.password,
+                                        onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, password: e.target.value }),
+                                        required: !editingUser,
+                                    }}
+                                />
                             )}
+                            <FormField
+                                label="Role"
+                                htmlFor="roleId"
+                                fieldType="select"
+                                inputProps={{
+                                    value: formData.roleId || '',
+                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, roleId: e.target.value }),
+                                    options: roles as { id: string | number; name: string; }[],
+                                    placeholder: "Select a role",
+                                }}
+                            />
+                            <FormField
+                                label="Status"
+                                htmlFor="isActive"
+                                fieldType="toggle"
+                                inputProps={{
+                                    isActive: formData.isActive ?? false,
+                                    onClick: () => setFormData({ ...formData, isActive: !formData.isActive }),
+                                }}
+                            />
                         </div>
                         <div className="flex gap-2 justify-end pt-4">
                             <Button type="submit" disabled={isLoading}>

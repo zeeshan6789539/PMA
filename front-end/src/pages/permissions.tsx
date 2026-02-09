@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ChangeEvent } from 'react';
 import { formatDate } from '@/utils/helper';
 import { permissionsApi, type PermissionResponse, type CreatePermissionRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
@@ -255,49 +254,49 @@ export function PermissionsPage() {
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="resource">Resource</Label>
-                            <Input
-                                id="resource"
-                                value={formData.resource}
-                                onChange={(e) => setFormData({ ...formData, resource: e.target.value })}
-                                required
-                                placeholder="e.g., users"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="action">Action</Label>
-                            <Input
-                                id="action"
-                                value={formData.action}
-                                onChange={(e) => setFormData({ ...formData, action: e.target.value })}
-                                required
-                                placeholder="e.g., create"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Permission Name</Label>
-                        <Input
-                            id="name"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            required
-                            placeholder="Auto-generated (e.g., users.create)"
-                            readOnly
-                            className="bg-muted"
+                        <FormField
+                            label="Resource"
+                            htmlFor="resource"
+                            inputProps={{
+                                value: formData.resource,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, resource: e.target.value }),
+                                required: true,
+                                placeholder: "e.g., users",
+                            }}
                         />
-                        <p className="text-xs text-muted-foreground">Permission name is automatically generated from resource and action</p>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
-                        <Input
-                            id="description"
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            placeholder="Brief description of this permission"
+                        <FormField
+                            label="Action"
+                            htmlFor="action"
+                            inputProps={{
+                                value: formData.action,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, action: e.target.value }),
+                                required: true,
+                                placeholder: "e.g., create",
+                            }}
                         />
                     </div>
+                    <FormField
+                        label="Permission Name"
+                        htmlFor="name"
+                        inputProps={{
+                            value: formData.name,
+                            onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value }),
+                            required: true,
+                            placeholder: "Auto-generated (e.g., users.create)",
+                            readOnly: true,
+                            className: "bg-muted",
+                        }}
+                    />
+                    <p className="text-xs text-muted-foreground">Permission name is automatically generated from resource and action</p>
+                    <FormField
+                        label="Description"
+                        htmlFor="description"
+                        inputProps={{
+                            value: formData.description,
+                            onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, description: e.target.value }),
+                            placeholder: "Brief description of this permission",
+                        }}
+                    />
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="outline" onClick={() => setShowFormModal(false)}>
                             Cancel

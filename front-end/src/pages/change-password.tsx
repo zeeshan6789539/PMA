@@ -1,13 +1,12 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function ChangePasswordPage() {
@@ -106,28 +105,30 @@ export function ChangePasswordPage() {
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
+                        <FormField
+                            label="Current Password"
+                            htmlFor="currentPassword"
+                            inputProps={{
+                                type: "password",
+                                placeholder: "Enter your current password",
+                                value: currentPassword,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value),
+                                required: true,
+                                disabled: isLoading,
+                            }}
+                        />
                         <div className="space-y-2">
-                            <Label htmlFor="currentPassword">Current Password</Label>
-                            <Input
-                                id="currentPassword"
-                                type="password"
-                                placeholder="Enter your current password"
-                                value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                required
-                                disabled={isLoading}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="newPassword">New Password</Label>
-                            <Input
-                                id="newPassword"
-                                type="password"
-                                placeholder="Enter new password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                required
-                                disabled={isLoading}
+                            <FormField
+                                label="New Password"
+                                htmlFor="newPassword"
+                                inputProps={{
+                                    type: "password",
+                                    placeholder: "Enter new password",
+                                    value: newPassword,
+                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value),
+                                    required: true,
+                                    disabled: isLoading,
+                                }}
                             />
                             {newPassword && (
                                 <div className="space-y-1 mt-2">
@@ -144,18 +145,18 @@ export function ChangePasswordPage() {
                                 </div>
                             )}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                            <Input
-                                id="confirmPassword"
-                                type="password"
-                                placeholder="Confirm new password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                                disabled={isLoading}
-                            />
-                        </div>
+                        <FormField
+                            label="Confirm New Password"
+                            htmlFor="confirmPassword"
+                            inputProps={{
+                                type: "password",
+                                placeholder: "Confirm new password",
+                                value: confirmPassword,
+                                onChange: (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value),
+                                required: true,
+                                disabled: isLoading,
+                            }}
+                        />
                     </CardContent>
                     <div className="px-6 pb-6">
                         <Button type="submit" className="w-full" disabled={isLoading}>
