@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock, ChevronDown, ChevronRight, Shield } from 'lucide-react';
@@ -160,8 +159,6 @@ export function PermissionsPage() {
 
     return (
         <div className="container mx-auto py-6 px-4">
-            <Breadcrumb items={[{ label: 'Permissions' }]} className="mb-6" />
-
             {/* Header with Actions */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">

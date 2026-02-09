@@ -129,8 +129,8 @@ export function RoleDetailPage() {
     if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin" /></div>;
 
     return (
-        <div className="container mx-auto py-6 px-4">
-            <Breadcrumb items={[{ label: 'Roles', href: '/roles' }, { label: role?.name || 'Role Details' }]} className="mb-6" />
+        <div className="container mx-auto py-2 px-4">
+            <Breadcrumb items={[{ label: 'Roles', href: '/roles' }, { label: role?.name || 'Role Details' }]} className="mb-2" />
 
             <Card className="border-border shadow-sm">
                 <CardHeader className="border-b bg-secondary/50 py-4">
