@@ -6,7 +6,8 @@ import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { ToggleButton } from '@/components/ui/toggle-button';
@@ -183,22 +184,14 @@ export function UsersPage() {
                                     />
                                 </div>
                             )}
-                            <div className="space-y-2">
-                                <Label htmlFor="roleId">Role</Label>
-                                <select
-                                    id="roleId"
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                    value={formData.roleId || ''}
-                                    onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
-                                >
-                                    <option value="">Select a role</option>
-                                    {roles.map((role) => (
-                                        <option key={role.id} value={role.id}>
-                                            {role.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                            <Select
+                                id="roleId"
+                                label="Role"
+                                value={formData.roleId || ''}
+                                onChange={(e) => setFormData({ ...formData, roleId: e.target.value })}
+                                options={roles as { id: string | number; name: string; }[]}
+                                placeholder="Select a role"
+                            />
                             {editingUser && (
                                 <div className="flex items-center space-x-2">
                                     <Label htmlFor="isActive">Status</Label>
