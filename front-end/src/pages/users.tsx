@@ -250,7 +250,7 @@ export function UsersPage() {
                                             {user.roleName || 'No Role'}
                                         </td>
                                         <td className="p-4">
-                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
                                                 {user.isActive ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>

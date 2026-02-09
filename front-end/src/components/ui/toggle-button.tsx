@@ -44,7 +44,7 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             {label && (
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-foreground">
                     {label}
                 </span>
             )}
