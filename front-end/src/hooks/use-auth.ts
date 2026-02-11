@@ -1,12 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { ApiResponse } from '@/lib/api';
-import type { 
-    LoginRequest, 
-    SignupRequest, 
-    ChangePasswordRequest, 
-    User, 
-    LoginResponse 
+import type {
+    LoginRequest,
+    SignupRequest,
+    ChangePasswordRequest,
+    User,
+    LoginResponse
 } from '@/context/auth-context';
 
 // Auth API calls
@@ -23,7 +23,7 @@ const authApi = {
 
 export const useLogin = () => {
     const queryClient = useQueryClient();
-    
+
     return useMutation({
         mutationFn: (data: LoginRequest) => authApi.login(data),
         onSuccess: (response) => {
