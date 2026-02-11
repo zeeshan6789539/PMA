@@ -1,6 +1,7 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
-import { formatDate } from '@/utils/helper';
-import { usersApi, rolesApi, type UserResponse, type CreateUserRequest, type UpdateUserRequest, type Role } from '@/lib/api';
+import { useState, type ChangeEvent } from 'react';
+import { formatDate } from '@/lib/helper';
+import { type CreateUserRequest, type UpdateUserRequest, type UserResponse } from '@/hooks/use-users';
+import type { Role } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -10,10 +11,10 @@ import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '@/hooks/use-users';
+import { useRoles } from '@/hooks/use-roles';
 
 export function UsersPage() {
-    const [users, setUsers] = useState<UserResponse[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const { showSuccess, showError } = useToast();
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
@@ -25,62 +26,39 @@ export function UsersPage() {
         roleId: '',
         isActive: true,
     });
-    const [roles, setRoles] = useState<Role[]>([]);
     const { hasPermission } = useAuth();
 
     const canCreate = hasPermission('user', 'create');
     const canUpdate = hasPermission('user', 'update');
     const canDelete = hasPermission('user', 'delete');
 
-    const fetchUsers = async () => {
-        try {
-            setIsLoading(true);
-            const response = await usersApi.list();
-            setUsers(response.data?.data?.users || []);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to fetch users';
-            showError(message, errorToastOptions);
-            setUsers([]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers();
+    const { data: rolesData } = useRoles();
+    const createUserMutation = useCreateUser();
+    const updateUserMutation = useUpdateUser();
+    const deleteUserMutation = useDeleteUser();
 
-    const fetchRoles = async () => {
-        try {
-            const response = await rolesApi.list();
-            setRoles(response.data?.data || []);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to fetch roles';
-            showError(message, errorToastOptions);
-        }
-    };
+    const users = usersData?.users || [];
+    const roles = rolesData || [];
+    const isLoading = usersLoading || createUserMutation.isPending || updateUserMutation.isPending || deleteUserMutation.isPending;
 
-    useEffect(() => {
-        fetchUsers();
-        fetchRoles();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            setIsLoading(true);
             if (editingUser) {
-                await usersApi.update(editingUser.id, formData as UpdateUserRequest);
+                await updateUserMutation.mutateAsync({ id: editingUser.id, data: formData as UpdateUserRequest });
                 showSuccess('User updated successfully', successToastOptions);
             } else {
-                await usersApi.create(formData as CreateUserRequest);
+                await createUserMutation.mutateAsync(formData as CreateUserRequest);
                 showSuccess('User created successfully', successToastOptions);
             }
             setShowForm(false);
             setEditingUser(null);
             setFormData({ name: '', email: '', password: '', roleId: '', isActive: true });
-            fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save user';
             showError(message, errorToastOptions);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -102,15 +80,12 @@ export function UsersPage() {
     const confirmDelete = async () => {
         if (!deletingUserId) return;
         try {
-            setIsLoading(true);
-            await usersApi.delete(deletingUserId);
+            await deleteUserMutation.mutateAsync(deletingUserId);
             showSuccess('User deleted successfully', successToastOptions);
-            fetchUsers();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete user';
             showError(message, errorToastOptions);
         } finally {
-            setIsLoading(false);
             setDeletingUserId(null);
         }
     };
@@ -123,7 +98,7 @@ export function UsersPage() {
                     <p className="text-muted-foreground">Manage system users</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={fetchUsers} disabled={isLoading}>
+                    <Button variant="outline" onClick={() => refetchUsers()} disabled={isLoading}>
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>

@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, type ChangeEvent } from 'react';
-import { formatDate } from '@/utils/helper';
-import { permissionsApi, type PermissionResponse, type CreatePermissionRequest } from '@/lib/api';
+import { useState, useMemo, type ChangeEvent } from 'react';
+import { formatDate } from '@/lib/helper';
+import { type CreatePermissionRequest, type PermissionResponse } from '@/hooks/use-permissions';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import { usePermissions, useCreatePermission, useUpdatePermission, useDeletePermission } from '@/hooks/use-permissions';
 
 interface PermissionGroup {
     resource: string;
@@ -17,9 +18,6 @@ interface PermissionGroup {
 }
 
 export function PermissionsPage() {
-    const [permissions, setPermissions] = useState<PermissionResponse[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
     const { showSuccess, showError } = useToast();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showFormModal, setShowFormModal] = useState(false);
@@ -38,23 +36,14 @@ export function PermissionsPage() {
     const canUpdate = hasPermission('permission', 'update');
     const canDelete = hasPermission('permission', 'delete');
 
-    const fetchPermissions = async () => {
-        try {
-            setIsLoading(true);
-            const response = await permissionsApi.list();
-            setPermissions(response.data.data);
-            // Groups start collapsed by default
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to fetch permissions';
-            showError(message, errorToastOptions);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { data: permissionsData, isLoading: permissionsLoading, refetch: refetchPermissions } = usePermissions();
+    const createPermissionMutation = useCreatePermission();
+    const updatePermissionMutation = useUpdatePermission();
+    const deletePermissionMutation = useDeletePermission();
 
-    useEffect(() => {
-        fetchPermissions();
-    }, []);
+    const permissions = permissionsData || [];
+    const isSaving = createPermissionMutation.isPending || updatePermissionMutation.isPending || deletePermissionMutation.isPending;
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,23 +58,19 @@ export function PermissionsPage() {
         const generatedName = `${formData.resource}.${formData.action}`;
 
         try {
-            setIsSaving(true);
             if (editingPermission) {
-                await permissionsApi.update(editingPermission.id, { ...formData, name: generatedName });
+                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: { ...formData, name: generatedName } });
                 showSuccess('Permission updated successfully', successToastOptions);
             } else {
-                await permissionsApi.create({ ...formData, name: generatedName });
+                await createPermissionMutation.mutateAsync({ ...formData, name: generatedName });
                 showSuccess('Permission created successfully', successToastOptions);
             }
             setEditingPermission(null);
             setFormData({ name: '', resource: '', action: '', description: '' });
             setShowFormModal(false);
-            fetchPermissions();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save permission';
             showError(message, errorToastOptions);
-        } finally {
-            setIsSaving(false);
         }
     };
 
@@ -113,17 +98,13 @@ export function PermissionsPage() {
     const confirmDelete = async () => {
         if (!permissionToDelete) return;
         try {
-            setIsSaving(true);
-            await permissionsApi.delete(permissionToDelete.id);
+            await deletePermissionMutation.mutateAsync(permissionToDelete.id);
             showSuccess('Permission deleted successfully', successToastOptions);
             setShowDeleteModal(false);
             setPermissionToDelete(null);
-            fetchPermissions();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete permission';
             showError(message, errorToastOptions);
-        } finally {
-            setIsSaving(false);
         }
     };
 
@@ -148,7 +129,7 @@ export function PermissionsPage() {
         })).sort((a, b) => a.resource.localeCompare(b.resource));
     }, [permissions]);
 
-    if (isLoading && !permissions.length) {
+    if (permissionsLoading && !permissions.length) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -165,7 +146,7 @@ export function PermissionsPage() {
                     <h1 className="text-2xl font-bold text-foreground">Permissions</h1>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={fetchPermissions} disabled={isSaving}>
+                    <Button variant="outline" onClick={() => refetchPermissions()} disabled={isSaving}>
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>

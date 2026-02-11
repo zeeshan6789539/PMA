@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { onLoadingChange } from '@/lib/api';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
+// Since we're using TanStack Query, we don't need the global loading context anymore
+// This is kept for backward compatibility but can be removed
 interface LoadingContextType {
     isLoading: boolean;
     setLoading: (loading: boolean) => void;
@@ -10,15 +11,6 @@ const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 
 export function LoadingProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        // Subscribe to loading events from API interceptor
-        const unsubscribe = onLoadingChange((loading) => {
-            setIsLoading(loading);
-        });
-
-        return unsubscribe;
-    }, []);
 
     const setLoading = (loading: boolean) => {
         setIsLoading(loading);

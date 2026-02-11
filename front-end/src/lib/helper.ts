@@ -13,4 +13,4 @@ export const formatDateTime = (date: string | Date | number): string => {
 
 export const formatTime = (date: string | Date | number): string => {
     return moment(date).format(TIME_FORMAT);
-};  
+};

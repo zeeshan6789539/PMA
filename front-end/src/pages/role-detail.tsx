@@ -1,6 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { rolesApi, permissionsApi, type RoleResponse, type PermissionResponse } from '@/lib/api';
+import { api } from '@/lib/api';
+import type { 
+    RoleResponse, 
+    AssignPermissionsRequest 
+} from '@/hooks/use-roles';
+import type { PermissionResponse } from '@/hooks/use-permissions';
+import type { ApiResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -9,6 +15,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleButton } from '@/components/ui/toggle-button';
 import { Loader2, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+
+// API calls
+const rolesApi = {
+    getById: (id: string) =>
+        api.get<ApiResponse<RoleResponse>>(`/roles/${id}`),
+
+    assignPermissions: (id: string, data: AssignPermissionsRequest) =>
+        api.post<ApiResponse<RoleResponse>>(`/roles/${id}/permissions`, data),
+
+    removePermissions: (id: string, data: AssignPermissionsRequest) =>
+        api.delete<ApiResponse<RoleResponse>>(`/roles/${id}/permissions`, { data }),
+};
+
+const permissionsApi = {
+    list: () =>
+        api.get<ApiResponse<PermissionResponse[]>>('/permissions'),
+};
 
 interface PermissionGroup {
     resource: string;

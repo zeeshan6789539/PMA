@@ -1,7 +1,8 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router';
-import { formatDate } from '@/utils/helper';
-import { rolesApi, type Role, type CreateRoleRequest } from '@/lib/api';
+import { formatDate } from '@/lib/helper';
+import type { CreateRoleRequest } from '@/hooks/use-roles';
+import type { Role } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,9 @@ import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import { useRoles, useCreateRole, useUpdateRole, useDeleteRole } from '@/hooks/use-roles';
 
 export function RolesPage() {
-    const [roles, setRoles] = useState<Role[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const { showSuccess, showError } = useToast();
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const [formData, setFormData] = useState<CreateRoleRequest>({ name: '' });
@@ -27,43 +27,31 @@ export function RolesPage() {
     const canUpdate = hasPermission('role', 'update');
     const canDelete = hasPermission('role', 'delete');
 
-    const fetchData = async () => {
-        try {
-            setIsLoading(true);
-            const rolesRes = await rolesApi.list();
-            setRoles(rolesRes.data.data);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to fetch data';
-            showError(message, errorToastOptions);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { data: rolesData, isLoading: rolesLoading, refetch: refetchRoles } = useRoles();
+    const createRoleMutation = useCreateRole();
+    const updateRoleMutation = useUpdateRole();
+    const deleteRoleMutation = useDeleteRole();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const roles = rolesData || [];
+    const isLoading = rolesLoading || createRoleMutation.isPending || updateRoleMutation.isPending || deleteRoleMutation.isPending;
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            setIsLoading(true);
             if (editingRole) {
-                await rolesApi.update(editingRole.id, formData);
+                await updateRoleMutation.mutateAsync({ id: editingRole.id, data: formData });
                 showSuccess('Role updated successfully', successToastOptions);
             } else {
-                await rolesApi.create(formData);
+                await createRoleMutation.mutateAsync(formData);
                 showSuccess('Role created successfully', successToastOptions);
             }
             setEditModalOpen(false);
             setEditingRole(null);
             setFormData({ name: '' });
-            fetchData();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save role';
             showError(message, errorToastOptions);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -82,15 +70,12 @@ export function RolesPage() {
     const confirmDelete = async () => {
         if (!roleToDelete) return;
         try {
-            setIsLoading(true);
-            await rolesApi.delete(roleToDelete.id);
+            await deleteRoleMutation.mutateAsync(roleToDelete.id);
             showSuccess('Role deleted successfully', successToastOptions);
-            fetchData();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to delete role';
             showError(message, errorToastOptions);
         } finally {
-            setIsLoading(false);
             setDeleteModalOpen(false);
             setRoleToDelete(null);
         }
@@ -104,7 +89,7 @@ export function RolesPage() {
                     <p className="text-muted-foreground">Manage user roles and permissions</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={fetchData} disabled={isLoading}>
+                    <Button variant="outline" onClick={() => refetchRoles()} disabled={isLoading}>
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Refresh
                     </Button>

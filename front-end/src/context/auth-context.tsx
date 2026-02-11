@@ -1,5 +1,79 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { authApi, type User, type LoginRequest, type SignupRequest, type ChangePasswordRequest, type Permissions } from '@/lib/api';
+import { api } from '@/lib/api';
+import type { ApiResponse } from '@/lib/api';
+
+// Auth types
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    roleId: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+export interface LoginResponse {
+    user: User;
+    token: string;
+    role: Role;
+    permissions: Permissions;
+}
+
+export interface Permissions {
+    [resource: string]: {
+        create?: boolean;
+        read?: boolean;
+        update?: boolean;
+        delete?: boolean;
+        manage?: boolean;
+    };
+}
+
+export interface SignupRequest {
+    name: string;
+    email: string;
+    password: string;
+}
+
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
+
+export interface Role {
+    id: string;
+    name: string;
+    permissionCount?: number;
+    userCount?: number;
+    createdAt: string;
+    updatedAt: string;
+    permissions?: {
+        [resource: string]: {
+            create?: boolean;
+            read?: boolean;
+            update?: boolean;
+            delete?: boolean;
+        };
+    };
+}
+
+// Auth API calls
+const authApi = {
+    login: (data: LoginRequest) =>
+        api.post<ApiResponse<LoginResponse>>('/auth/login', data),
+
+    signup: (data: SignupRequest) =>
+        api.post<ApiResponse<User>>('/auth/signup', data),
+
+    changePassword: (data: ChangePasswordRequest) =>
+        api.post<ApiResponse<void>>('/auth/change-password', data),
+};
 
 interface AuthContextType {
     user: User | null;
