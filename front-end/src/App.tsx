@@ -31,11 +31,23 @@ function App() {
                 <Route element={<Layout />}>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/change-password" element={<ChangePasswordPage />} />
+                </Route>
+              </Route>
+              <Route element={<ProtectedRoute requiredResource="user" requiredAction="read" />}>
+                <Route element={<Layout />}>
                   <Route path="/users" element={<UsersPage />} />
+                </Route>
+              </Route>
+              <Route element={<ProtectedRoute requiredResource="role" requiredAction="read" />}>
+                <Route element={<Layout />}>
                   <Route path="/roles" element={<RolesPage />} />
                   <Route path="/roles/:id" element={<RoleDetailPage />} />
+                </Route>
+              </Route>
+              <Route element={<ProtectedRoute requiredResource="permission" requiredAction="read" />}>
+                <Route element={<Layout />}>
                   <Route path="/permissions" element={<PermissionsPage />} />
-                  <Route path="/change-password" element={<ChangePasswordPage />} />
                 </Route>
               </Route>
             </Routes>

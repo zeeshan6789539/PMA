@@ -2,8 +2,18 @@ import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuth } from '@/context/auth-context';
 import { Loader2 } from 'lucide-react';
 
-export function ProtectedRoute() {
-    const { isAuthenticated, isLoading } = useAuth();
+interface ProtectedRouteProps {
+    requiredResource?: string;
+    requiredAction?: string;
+    fallbackPath?: string;
+}
+
+export function ProtectedRoute({ 
+    requiredResource, 
+    requiredAction, 
+    fallbackPath = '/unauthorized' 
+}: ProtectedRouteProps = {}) {
+    const { isAuthenticated, isLoading, hasPermission } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
@@ -16,6 +26,13 @@ export function ProtectedRoute() {
 
     if (!isAuthenticated) {
         return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    // Check permissions if resource and action are specified
+    if (requiredResource && requiredAction) {
+        if (!hasPermission(requiredResource, requiredAction)) {
+            return <Navigate to={fallbackPath} state={{ from: location }} replace />;
+        }
     }
 
     return <Outlet />;
