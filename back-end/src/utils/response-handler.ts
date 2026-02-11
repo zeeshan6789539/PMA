@@ -31,9 +31,24 @@ class ResponseHandler {
    * @param {*} error - Error details
    */
   static error(res: Response, message: string = 'Internal Server Error', statusCode: number = 500, error: any = null) {
+    let finalMessage = message;
+    
+    // Consolidate error details into message for frontend consistency
+    if (error) {
+      if (typeof error === 'string') {
+        finalMessage = `${message}: ${error}`;
+      } else if (error.message) {
+        finalMessage = `${message}: ${error.message}`;
+      } else if (error.stack) {
+        finalMessage = `${message}: ${error.stack}`;
+      } else {
+        finalMessage = `${message}: ${JSON.stringify(error)}`;
+      }
+    }
+    
     return res.status(statusCode).json({
       success: false,
-      message,
+      message: finalMessage,
       error: IS_DEVELOPMENT ? error : null,
       timestamp: new Date().toISOString()
     });
@@ -46,10 +61,22 @@ class ResponseHandler {
    * @param {Array} errors - Validation errors array
    */
   static validationError(res: Response, message: string = 'Validation Error', errors: any[] = []) {
+    let finalMessage = message;
+    
+    // Consolidate validation errors into message for frontend consistency
+    if (errors.length > 0) {
+      const errorMessages = errors.map(err => {
+        if (typeof err === 'string') return err;
+        if (err.message) return `${err.field || 'Field'}: ${err.message}`;
+        return JSON.stringify(err);
+      });
+      finalMessage = `${message}: ${errorMessages.join(', ')}`;
+    }
+    
     return res.status(400).json({
       success: false,
-      message,
-      errors,
+      message: finalMessage,
+      errors: IS_DEVELOPMENT ? errors : null,
       timestamp: new Date().toISOString()
     });
   }
