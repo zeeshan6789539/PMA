@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDate } from '@/lib/helper';
-import { type CreateUserRequest, type UpdateUserRequest, type UserResponse } from '@/hooks/use-users';
-import type { Role } from '@/context/auth-context';
+import { type UserResponse } from '@/hooks/use-users';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -140,7 +139,7 @@ export function UsersPage() {
                     title={editingUser ? 'Edit User' : 'Create User'}
                 >
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 label="Name"
                                 htmlFor="name"
@@ -166,7 +165,7 @@ export function UsersPage() {
                                         type: "password",
                                         ...register('password'),
                                     }}
-                                    error={errors.password?.message}
+                                    error={editingUser ? undefined : errors.password?.message}
                                 />
                             )}
                             <FormField
@@ -189,6 +188,9 @@ export function UsersPage() {
                                     onClick: () => setValue('isActive', !isActive),
                                 }}
                             />
+                            {editingUser && (
+                                <div></div>
+                            )}
                         </div>
                         <div className="flex gap-2 justify-end pt-4">
                             <Button type="submit" disabled={isSubmitting}>
