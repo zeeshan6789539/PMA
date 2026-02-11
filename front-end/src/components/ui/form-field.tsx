@@ -45,7 +45,6 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
     ({ label, htmlFor, inputProps, className, labelClassName, error, fieldType = 'text', showPasswordToggle, showPassword, onTogglePassword, ...props }, ref) => {
         const isToggle = fieldType === 'toggle'
         const isSelect = fieldType === 'select'
-        const isPassword = (inputProps as InputProps).type === 'password'
         const inputClassName = showPasswordToggle ? "[&_input]:pr-10" : ""
 
         return (
@@ -85,7 +84,7 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
                     </div>
                 )}
                 {error && (
-                    <p className="text-sm text-red-500">{error}</p>
+                    <p className="text-sm text-destructive">{error}</p>
                 )}
             </div>
         )

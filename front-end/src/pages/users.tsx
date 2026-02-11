@@ -1,4 +1,6 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDate } from '@/lib/helper';
 import { type CreateUserRequest, type UpdateUserRequest, type UserResponse } from '@/hooks/use-users';
 import type { Role } from '@/context/auth-context';
@@ -13,19 +15,13 @@ import { Loader2, Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from '@/hooks/use-users';
 import { useRoles } from '@/hooks/use-roles';
+import { createUserSchema, updateUserSchema, type CreateUserInput, type UpdateUserInput } from '@/lib/validation/schemas';
 
 export function UsersPage() {
     const [showForm, setShowForm] = useState(false);
     const { showSuccess, showError } = useToast();
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null);
     const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
-    const [formData, setFormData] = useState<CreateUserRequest | UpdateUserRequest>({
-        name: '',
-        email: '',
-        password: '',
-        roleId: '',
-        isActive: true,
-    });
     const { hasPermission } = useAuth();
 
     const canCreate = hasPermission('user', 'create');
@@ -42,20 +38,39 @@ export function UsersPage() {
     const roles = rolesData || [];
     const isLoading = usersLoading || createUserMutation.isPending || updateUserMutation.isPending || deleteUserMutation.isPending;
 
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<CreateUserInput | UpdateUserInput>({
+        resolver: zodResolver(editingUser ? updateUserSchema : createUserSchema),
+        defaultValues: {
+            name: '',
+            email: '',
+            password: '',
+            roleId: '',
+            isActive: true,
+        },
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const isActive = watch('isActive');
+
+
+    const onSubmit = async (data: CreateUserInput | UpdateUserInput) => {
         try {
             if (editingUser) {
-                await updateUserMutation.mutateAsync({ id: editingUser.id, data: formData as UpdateUserRequest });
+                await updateUserMutation.mutateAsync({ id: editingUser.id, data: data as UpdateUserInput });
                 showSuccess('User updated successfully', successToastOptions);
             } else {
-                await createUserMutation.mutateAsync(formData as CreateUserRequest);
+                await createUserMutation.mutateAsync(data as CreateUserInput);
                 showSuccess('User created successfully', successToastOptions);
             }
             setShowForm(false);
             setEditingUser(null);
-            setFormData({ name: '', email: '', password: '', roleId: '', isActive: true });
+            reset();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save user';
             showError(message, errorToastOptions);
@@ -64,11 +79,12 @@ export function UsersPage() {
 
     const handleEdit = (user: UserResponse) => {
         setEditingUser(user);
-        setFormData({
+        reset({
             name: user.name,
             email: user.email,
             roleId: user.roleId || '',
             isActive: user.isActive,
+            password: '',
         });
         setShowForm(true);
     };
@@ -103,7 +119,7 @@ export function UsersPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setShowForm(true); setEditingUser(null); setFormData({ name: '', email: '', password: '', roleId: '', isActive: true }); }}>
+                        <Button onClick={() => { setShowForm(true); setEditingUser(null); reset(); }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add User
                         </Button>
@@ -118,31 +134,29 @@ export function UsersPage() {
                         setShowForm(open);
                         if (!open) {
                             setEditingUser(null);
-                            setFormData({ name: '', email: '', password: '', roleId: '', isActive: true });
+                            reset();
                         }
                     }}
                     title={editingUser ? 'Edit User' : 'Create User'}
                 >
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 gap-4">
                             <FormField
                                 label="Name"
                                 htmlFor="name"
                                 inputProps={{
-                                    value: formData.name,
-                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value }),
-                                    required: true,
+                                    ...register('name'),
                                 }}
+                                error={errors.name?.message}
                             />
                             <FormField
                                 label="Email"
                                 htmlFor="email"
                                 inputProps={{
                                     type: "email",
-                                    value: formData.email,
-                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value }),
-                                    required: true,
+                                    ...register('email'),
                                 }}
+                                error={errors.email?.message}
                             />
                             {!editingUser && (
                                 <FormField
@@ -150,10 +164,9 @@ export function UsersPage() {
                                     htmlFor="password"
                                     inputProps={{
                                         type: "password",
-                                        value: formData.password,
-                                        onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, password: e.target.value }),
-                                        required: !editingUser,
+                                        ...register('password'),
                                     }}
+                                    error={errors.password?.message}
                                 />
                             )}
                             <FormField
@@ -161,28 +174,28 @@ export function UsersPage() {
                                 htmlFor="roleId"
                                 fieldType="select"
                                 inputProps={{
-                                    value: formData.roleId || '',
-                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, roleId: e.target.value }),
+                                    ...register('roleId'),
                                     options: roles as { id: string | number; name: string; }[],
                                     placeholder: "Select a role",
                                 }}
+                                error={errors.roleId?.message}
                             />
                             <FormField
                                 label="Status"
                                 htmlFor="isActive"
                                 fieldType="toggle"
                                 inputProps={{
-                                    isActive: formData.isActive ?? false,
-                                    onClick: () => setFormData({ ...formData, isActive: !formData.isActive }),
+                                    isActive: isActive ?? false,
+                                    onClick: () => setValue('isActive', !isActive),
                                 }}
                             />
                         </div>
                         <div className="flex gap-2 justify-end pt-4">
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                 {editingUser ? 'Update' : 'Create'}
                             </Button>
-                            <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingUser(null); setFormData({ name: '', email: '', password: '', roleId: '', isActive: true }); }}>
+                            <Button type="button" variant="outline" onClick={() => { setShowForm(false); setEditingUser(null); reset(); }}>
                                 Cancel
                             </Button>
                         </div>

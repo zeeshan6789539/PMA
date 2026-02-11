@@ -1,6 +1,8 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import type { Location } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -8,36 +10,37 @@ import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { loginSchema, type LoginInput } from '@/lib/validation/schemas';
 
 export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation() as Location;
     const { isAuthenticated, login } = useAuth();
     const { showSuccess, showError } = useToast();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<LoginInput>({
+        resolver: zodResolver(loginSchema),
+    });
 
     if (isAuthenticated) {
         navigate('/');
         return null;
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        
+    const onSubmit = async (data: LoginInput) => {
         try {
-            await login({ email, password });
+            await login(data);
             showSuccess('Login successful!', successToastOptions);
             const from = location.state?.from?.pathname || '/';
             navigate(from, { replace: true });
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
             showError(errorMessage, errorToastOptions);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -50,7 +53,7 @@ export function LoginPage() {
                         Enter your credentials to access your account
                     </CardDescription>
                 </CardHeader>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <CardContent className="space-y-4">
                         <FormField
                             label="Email"
@@ -58,11 +61,10 @@ export function LoginPage() {
                             inputProps={{
                                 type: "email",
                                 placeholder: "john@example.com",
-                                value: email,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
-                                required: true,
-                                disabled: isLoading,
+                                ...register('email'),
+                                disabled: isSubmitting,
                             }}
+                            error={errors.email?.message}
                         />
                         <FormField
                             label="Password"
@@ -70,19 +72,18 @@ export function LoginPage() {
                             inputProps={{
                                 type: showPassword ? 'text' : 'password',
                                 placeholder: "Enter your password",
-                                value: password,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value),
-                                required: true,
-                                disabled: isLoading,
+                                ...register('password'),
+                                disabled: isSubmitting,
                             }}
                             showPasswordToggle
                             showPassword={showPassword}
                             onTogglePassword={() => setShowPassword(!showPassword)}
+                            error={errors.password?.message}
                         />
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? (
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Signing in...
