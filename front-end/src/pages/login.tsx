@@ -7,20 +7,17 @@ import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
-import { useLogin } from '@/hooks/use-auth';
+import { Loader2 } from 'lucide-react';
 
 export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation() as Location;
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, login } = useAuth();
     const { showSuccess, showError } = useToast();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    
-    const loginMutation = useLogin();
-    const isLoading = loginMutation.isPending;
+    const [isLoading, setIsLoading] = useState(false);
 
     if (isAuthenticated) {
         navigate('/');
@@ -29,15 +26,18 @@ export function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
         
         try {
-            await loginMutation.mutateAsync({ email, password });
+            await login({ email, password });
             showSuccess('Login successful!', successToastOptions);
             const from = location.state?.from?.pathname || '/';
             navigate(from, { replace: true });
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
             showError(errorMessage, errorToastOptions);
+        } finally {
+            setIsLoading(false);
         }
     };
 
