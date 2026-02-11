@@ -70,6 +70,14 @@ api.interceptors.response.use(
             }
         }
 
+        // Extract error message from backend response
+        const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+
+        // Handle 400 Validation errors (don't clear auth data)
+        if (error.response?.status === 400) {
+            return Promise.reject(new Error(errorMessage));
+        }
+
         // Handle 403 Super admin access required error
         if (error.response?.status === 403) {
             const errorData = error.response?.data;
@@ -84,7 +92,7 @@ api.interceptors.response.use(
 
                 // Redirect to login
                 window.location.href = '/login';
-                return Promise.reject(error);
+                return Promise.reject(new Error(errorMessage));
             }
         }
 
@@ -100,7 +108,8 @@ api.interceptors.response.use(
             }
         }
 
-        return Promise.reject(error);
+        // Always reject with the extracted error message
+        return Promise.reject(new Error(errorMessage));
     }
 );
 
