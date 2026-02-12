@@ -160,7 +160,16 @@ export function PermissionsPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setEditingPermission(null); reset(); setShowFormModal(true); }}>
+                        <Button onClick={() => { 
+                            setEditingPermission(null); 
+                            reset({
+                                name: '',
+                                resource: '',
+                                action: '',
+                                description: '',
+                            }); 
+                            setShowFormModal(true); 
+                        }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Permission
                         </Button>

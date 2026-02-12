@@ -118,7 +118,17 @@ export function UsersPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setShowForm(true); setEditingUser(null); reset(); }}>
+                        <Button onClick={() => { 
+                            setShowForm(true); 
+                            setEditingUser(null); 
+                            reset({
+                                name: '',
+                                email: '',
+                                password: '',
+                                roleId: '',
+                                isActive: true,
+                            });
+                        }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add User
                         </Button>

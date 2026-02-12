@@ -106,7 +106,11 @@ export function RolesPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setEditingRole(null); reset(); setEditModalOpen(true); }}>
+                        <Button onClick={() => { 
+                            setEditingRole(null); 
+                            reset({ name: '' }); 
+                            setEditModalOpen(true); 
+                        }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Role
                         </Button>
