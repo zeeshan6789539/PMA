@@ -11,7 +11,7 @@ export type FieldType = 'text' | 'email' | 'password' | 'number' | 'toggle' | 's
 export interface FormFieldProps {
     label: string
     htmlFor?: string
-    inputProps: InputProps | ToggleButtonProps | SelectProps
+    inputProps: any // Changed to any to handle various prop types more flexibly
     className?: string
     labelClassName?: string
     error?: string
@@ -19,26 +19,6 @@ export interface FormFieldProps {
     showPasswordToggle?: boolean
     showPassword?: boolean
     onTogglePassword?: () => void
-}
-
-interface ToggleButtonProps {
-    isActive: boolean
-    onClick: () => void
-    label?: string
-    disabled?: boolean
-    size?: 'sm' | 'md' | 'lg'
-    className?: string
-    activeClassName?: string
-    inactiveClassName?: string
-}
-
-interface SelectProps {
-    value?: string | number
-    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void
-    options: { id: string | number; name: string; }[]
-    placeholder?: string
-    disabled?: boolean
-    className?: string
 }
 
 const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
@@ -58,7 +38,7 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
                             {label}
                         </Label>
                         <ToggleButton
-                            {...(inputProps as ToggleButtonProps)}
+                            {...inputProps}
                         />
                     </div>
                 ) : (
@@ -72,29 +52,26 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
                         {isSelect ? (
                             <Select
                                 id={htmlFor}
-                                options={(inputProps as SelectProps).options}
-                                placeholder={(inputProps as SelectProps).placeholder}
-                                value={(inputProps as SelectProps).value}
+                                options={inputProps.options}
+                                placeholder={inputProps.placeholder}
+                                value={inputProps.value} // Crucial: pass the current value
                                 onChange={(value) => {
-                                    const selectProps = inputProps as SelectProps;
-                                    if (selectProps.onChange) {
-                                        // Create a synthetic event for react-hook-form
-                                        const syntheticEvent = {
-                                            target: { value: String(value) }
-                                        } as React.ChangeEvent<HTMLSelectElement>;
-                                        selectProps.onChange(syntheticEvent);
+                                    if (inputProps.onChange) {
+                                        // Create a synthetic event or call the handler directly
+                                        inputProps.onChange(value);
                                     }
                                 }}
-                                disabled={(inputProps as SelectProps).disabled}
-                                className={(inputProps as SelectProps).className}
+                                disabled={inputProps.disabled}
+                                className={inputProps.className}
+                                error={error}
                             />
                         ) : (
                             <div className="relative">
                                 <Input
                                     id={htmlFor}
                                     ref={ref}
-                                    {...(inputProps as InputProps)}
-                                    className={cn(inputClassName, (inputProps as InputProps).className)}
+                                    {...inputProps}
+                                    className={cn(inputClassName, inputProps.className)}
                                 />
                                 {showPasswordToggle && (
                                     <button

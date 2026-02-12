@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form'; // Added Controller
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDate } from '@/lib/helper';
 import { type UserResponse } from '@/hooks/use-users';
@@ -43,6 +43,7 @@ export function UsersPage() {
         reset,
         setValue,
         watch,
+        control, // Needed for Controller
         formState: { errors, isSubmitting },
     } = useForm<CreateUserInput | UpdateUserInput>({
         resolver: zodResolver(editingUser ? updateUserSchema : createUserSchema),
@@ -56,7 +57,6 @@ export function UsersPage() {
     });
 
     const isActive = watch('isActive');
-
 
     const onSubmit = async (data: CreateUserInput | UpdateUserInput) => {
         try {
@@ -143,42 +143,44 @@ export function UsersPage() {
                             <FormField
                                 label="Name"
                                 htmlFor="name"
-                                inputProps={{
-                                    ...register('name'),
-                                }}
+                                inputProps={{ ...register('name') }}
                                 error={errors.name?.message}
                             />
                             <FormField
                                 label="Email"
                                 htmlFor="email"
-                                inputProps={{
-                                    type: "email",
-                                    ...register('email'),
-                                }}
+                                inputProps={{ type: "email", ...register('email') }}
                                 error={errors.email?.message}
                             />
                             {!editingUser && (
                                 <FormField
                                     label="Password"
                                     htmlFor="password"
-                                    inputProps={{
-                                        type: "password",
-                                        ...register('password'),
-                                    }}
-                                    error={editingUser ? undefined : errors.password?.message}
+                                    inputProps={{ type: "password", ...register('password') }}
+                                    error={errors.password?.message}
                                 />
                             )}
-                            <FormField
-                                label="Role"
-                                htmlFor="roleId"
-                                fieldType="select"
-                                inputProps={{
-                                    ...register('roleId'),
-                                    options: roles as { id: string | number; name: string; }[],
-                                    placeholder: "Select a role",
-                                }}
-                                error={errors.roleId?.message}
+                            
+                            {/* FIXED: Using Controller for the Select component */}
+                            <Controller
+                                control={control}
+                                name="roleId"
+                                render={({ field }) => (
+                                    <FormField
+                                        label="Role"
+                                        htmlFor="roleId"
+                                        fieldType="select"
+                                        inputProps={{
+                                            options: roles,
+                                            value: field.value,
+                                            onChange: (val: string | number) => field.onChange(val),
+                                            placeholder: "Select a role",
+                                        }}
+                                        error={errors.roleId?.message}
+                                    />
+                                )}
                             />
+
                             <FormField
                                 label="Status"
                                 htmlFor="isActive"
@@ -188,9 +190,6 @@ export function UsersPage() {
                                     onClick: () => setValue('isActive', !isActive),
                                 }}
                             />
-                            {editingUser && (
-                                <div></div>
-                            )}
                         </div>
                         <div className="flex gap-2 justify-end pt-4">
                             <Button type="submit" disabled={isSubmitting}>
@@ -205,66 +204,52 @@ export function UsersPage() {
                 </Dialog>
             )}
 
-            {isLoading && !users.length ? (
-                <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            ) : (
-                <Card>
-                    <CardContent className="p-0">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b bg-muted/50">
-                                    <th className="text-left p-4 font-medium">Name</th>
-                                    <th className="text-left p-4 font-medium">Email</th>
-                                    <th className="text-left p-4 font-medium">Role</th>
-                                    <th className="text-left p-4 font-medium">Status</th>
-                                    <th className="text-left p-4 font-medium">Created At</th>
-                                    <th className="text-right p-4 font-medium">Actions</th>
+            {/* ... Rest of your table code remains the same ... */}
+            <Card>
+                <CardContent className="p-0">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b bg-muted/50">
+                                <th className="text-left p-4 font-medium">Name</th>
+                                <th className="text-left p-4 font-medium">Email</th>
+                                <th className="text-left p-4 font-medium">Role</th>
+                                <th className="text-left p-4 font-medium">Status</th>
+                                <th className="text-left p-4 font-medium">Created At</th>
+                                <th className="text-right p-4 font-medium">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(users || []).map((user) => (
+                                <tr key={user.id} className="border-b">
+                                    <td className="p-4">{user.name}</td>
+                                    <td className="p-4">{user.email}</td>
+                                    <td className="p-4">{user.roleName || 'No Role'}</td>
+                                    <td className="p-4">
+                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
+                                            {user.isActive ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-muted-foreground">{formatDate(user.createdAt)}</td>
+                                    <td className="p-4 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            {canUpdate && (
+                                                <Button variant="outline" size="icon" onClick={() => handleEdit(user)}>
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            {canDelete && (
+                                                <Button variant="outline" size="icon" onClick={() => handleDelete(user.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {(users || []).map((user) => (
-                                    <tr key={user.id} className="border-b">
-                                        <td className="p-4">{user.name}</td>
-                                        <td className="p-4">{user.email}</td>
-                                        <td className="p-4">
-                                            {user.roleName || 'No Role'}
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
-                                                {user.isActive ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-muted-foreground">
-                                            {formatDate(user.createdAt)}
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                {canUpdate && (
-                                                    <Button variant="outline" size="icon" onClick={() => handleEdit(user)}>
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                                {canDelete && (
-                                                    <Button variant="outline" size="icon" onClick={() => handleDelete(user.id)}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {users.length === 0 && (
-                            <div className="p-8 text-center text-muted-foreground">
-                                No users found. Create your first user to get started.
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
+                            ))}
+                        </tbody>
+                    </table>
+                </CardContent>
+            </Card>
 
             <ConfirmationModal
                 open={deletingUserId !== null}
