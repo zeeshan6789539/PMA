@@ -123,7 +123,7 @@ export function RolesPage() {
                     <CardContent className="p-0">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b bg-muted/50">
+                                <tr className="border-b bg-primary/10">
                                     <th className="text-left p-4 font-medium">Name</th>
                                     <th className="text-left p-4 font-medium">Permissions</th>
                                     <th className="text-left p-4 font-medium">Users</th>
