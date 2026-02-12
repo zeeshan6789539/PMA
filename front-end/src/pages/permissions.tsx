@@ -84,16 +84,11 @@ export function PermissionsPage() {
     };
 
     const handleEdit = (permission: PermissionResponse) => {
-        // Parse name (format: resource.action) into separate fields
-        const nameParts = permission.name.split('.');
-        const resource = nameParts[0] || '';
-        const action = nameParts[1] || '';
-
         setEditingPermission(permission);
         reset({
             name: permission.name,
-            resource,
-            action,
+            resource: permission.resource,
+            action: permission.action,
             description: permission.description || '',
         });
         setShowFormModal(true);
