@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Input, type InputProps } from "@/components/ui/input"
 import { ToggleButton } from "@/components/ui/toggle-button"
-import { Select } from "@/components/ui/select"
+import { CustomSelect } from "@/components/ui/custom-select"
 import { Eye, EyeOff } from "lucide-react"
 
 export type FieldType = 'text' | 'email' | 'password' | 'number' | 'toggle' | 'select' | 'textarea'
@@ -48,40 +48,66 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
         const inputClassName = showPasswordToggle ? "[&_input]:pr-10" : ""
 
         return (
-            <div className={cn("space-y-2", className)} {...props}>
-                <Label
-                    htmlFor={htmlFor}
-                    className={labelClassName}
-                >
-                    {label}
-                </Label>
+            <div className={cn(isToggle ? "" : "space-y-2", className)} {...props}>
                 {isToggle ? (
-                    <ToggleButton
-                        {...(inputProps as ToggleButtonProps)}
-                    />
-                ) : isSelect ? (
-                    <Select
-                        id={htmlFor}
-                        {...(inputProps as SelectProps)}
-                    />
-                ) : (
-                    <div className="relative">
-                        <Input
-                            id={htmlFor}
-                            ref={ref}
-                            {...(inputProps as InputProps)}
-                            className={cn(inputClassName, (inputProps as InputProps).className)}
+                    <div className="flex items-center justify-between py-2">
+                        <Label
+                            htmlFor={htmlFor}
+                            className={cn("text-base font-medium", labelClassName)}
+                        >
+                            {label}
+                        </Label>
+                        <ToggleButton
+                            {...(inputProps as ToggleButtonProps)}
                         />
-                        {showPasswordToggle && (
-                            <button
-                                type="button"
-                                onClick={onTogglePassword}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                            >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                        )}
                     </div>
+                ) : (
+                    <>
+                        <Label
+                            htmlFor={htmlFor}
+                            className={labelClassName}
+                        >
+                            {label}
+                        </Label>
+                        {isSelect ? (
+                            <CustomSelect
+                                id={htmlFor}
+                                options={(inputProps as SelectProps).options}
+                                placeholder={(inputProps as SelectProps).placeholder}
+                                value={(inputProps as SelectProps).value}
+                                onChange={(value) => {
+                                    const selectProps = inputProps as SelectProps;
+                                    if (selectProps.onChange) {
+                                        // Create a synthetic event for react-hook-form
+                                        const syntheticEvent = {
+                                            target: { value: String(value) }
+                                        } as React.ChangeEvent<HTMLSelectElement>;
+                                        selectProps.onChange(syntheticEvent);
+                                    }
+                                }}
+                                disabled={(inputProps as SelectProps).disabled}
+                                className={(inputProps as SelectProps).className}
+                            />
+                        ) : (
+                            <div className="relative">
+                                <Input
+                                    id={htmlFor}
+                                    ref={ref}
+                                    {...(inputProps as InputProps)}
+                                    className={cn(inputClassName, (inputProps as InputProps).className)}
+                                />
+                                {showPasswordToggle && (
+                                    <button
+                                        type="button"
+                                        onClick={onTogglePassword}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </>
                 )}
                 {error && (
                     <p className="text-sm text-destructive">{error}</p>

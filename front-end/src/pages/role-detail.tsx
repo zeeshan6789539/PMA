@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '@/lib/api';
-import type { 
-    RoleResponse, 
-    AssignPermissionsRequest 
+import type {
+    RoleResponse,
+    AssignPermissionsRequest
 } from '@/hooks/use-roles';
 import type { PermissionResponse } from '@/hooks/use-permissions';
 import type { ApiResponse } from '@/lib/api';
@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleButton } from '@/components/ui/toggle-button';
 import { Loader2, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import { cn } from '@/lib/utils';
 
 // API calls
 const rolesApi = {
@@ -154,7 +155,7 @@ export function RoleDetailPage() {
             <Breadcrumb items={[{ label: 'Roles', href: '/roles' }, { label: role?.name || 'Role Details' }]} className="mb-2" />
 
             <Card className="border-border shadow-sm">
-                <CardHeader className="border-b bg-secondary/50 py-4">
+                <CardHeader className="border-b bg-primary/10 py-4">
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Shield className="h-5 w-5 text-primary" />
@@ -196,9 +197,21 @@ export function RoleDetailPage() {
                                             {group.permissions.map((p) => {
                                                 const isSelected = selectedPermissions.includes(p.id);
                                                 return (
-                                                    <div key={p.id} className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${canManage ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'} ${isSelected ? 'border-primary/30 bg-secondary/50' : 'border-border bg-card hover:border-primary/20'}`}>
+                                                    <div
+                                                        key={p.id}
+                                                        className={cn(
+                                                            "flex items-center justify-between p-3 rounded-xl border transition-all duration-300",
+                                                            canManage ? 'cursor-pointer' : 'cursor-not-allowed opacity-70',
+                                                            isSelected
+                                                                ? 'border-primary/50 bg-primary/10 shadow-lg shadow-primary/5 hover:bg-primary/15'
+                                                                : 'border-border/50 bg-card hover:border-primary/30 hover:bg-accent/5'
+                                                        )}
+                                                    >
                                                         <div className="flex flex-col overflow-hidden">
-                                                            <span className="text-xs font-bold text-foreground capitalize truncate">{p.action}</span>
+                                                            <span className={cn(
+                                                                "text-xs font-bold capitalize truncate",
+                                                                isSelected ? "bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" : "text-foreground"
+                                                            )}>{p.action}</span>
                                                             <span className="text-[10px] text-muted-foreground truncate">{p.description}</span>
                                                         </div>
                                                         <ToggleButton

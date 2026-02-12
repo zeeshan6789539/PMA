@@ -68,7 +68,7 @@ export function PermissionsPage() {
 
         try {
             if (editingPermission) {
-                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: finalData as UpdatePermissionInput });
+                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: finalData as unknown as UpdatePermissionInput as any });
                 showSuccess('Permission updated successfully', successToastOptions);
             } else {
                 await createPermissionMutation.mutateAsync(finalData as CreatePermissionInput);
@@ -170,7 +170,7 @@ export function PermissionsPage() {
 
             {/* Permissions List */}
             <Card className="border-border shadow-sm">
-                <CardHeader className="border-b bg-secondary/50 py-4">
+                <CardHeader className="border-b bg-primary/10 py-4">
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Lock className="h-5 w-5 text-primary" />
