@@ -2,7 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Check, ChevronDown } from "lucide-react"
 
-export interface CustomSelectProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface SelectProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
     label?: string
     options: { id: string | number; name: string }[]
     placeholder?: string
@@ -14,7 +14,7 @@ export interface CustomSelectProps extends Omit<React.HTMLAttributes<HTMLDivElem
     name?: string
 }
 
-export const CustomSelect = React.forwardRef<HTMLDivElement, CustomSelectProps>(
+export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
     ({
         label,
         options,
@@ -129,4 +129,4 @@ export const CustomSelect = React.forwardRef<HTMLDivElement, CustomSelectProps>(
         )
     }
 )
-CustomSelect.displayName = "CustomSelect"
+Select.displayName = "Select"

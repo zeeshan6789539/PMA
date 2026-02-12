@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Input, type InputProps } from "@/components/ui/input"
 import { ToggleButton } from "@/components/ui/toggle-button"
-import { CustomSelect } from "@/components/ui/custom-select"
+import { Select } from "@/components/ui/select"
 import { Eye, EyeOff } from "lucide-react"
 
 export type FieldType = 'text' | 'email' | 'password' | 'number' | 'toggle' | 'select' | 'textarea'
@@ -70,7 +70,7 @@ const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
                             {label}
                         </Label>
                         {isSelect ? (
-                            <CustomSelect
+                            <Select
                                 id={htmlFor}
                                 options={(inputProps as SelectProps).options}
                                 placeholder={(inputProps as SelectProps).placeholder}
