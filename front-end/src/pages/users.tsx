@@ -106,8 +106,8 @@ export function UsersPage() {
     };
 
     return (
-        <div className="container mx-auto py-8 px-4">
-            <div className="flex items-center justify-between mb-6">
+        <div className="container mx-auto py-6 px-4">
+            <div className="flex items-center justify-between mb-4">
                 <div>
                     <h1 className="text-3xl font-bold">Users</h1>
                     <p className="text-muted-foreground">Manage system users</p>
@@ -118,9 +118,9 @@ export function UsersPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { 
-                            setShowForm(true); 
-                            setEditingUser(null); 
+                        <Button onClick={() => {
+                            setShowForm(true);
+                            setEditingUser(null);
                             reset({
                                 name: '',
                                 email: '',
@@ -170,7 +170,7 @@ export function UsersPage() {
                                     error={errors.password?.message}
                                 />
                             )}
-                            
+
                             {/* FIXED: Using Controller for the Select component */}
                             <Controller
                                 control={control}
@@ -220,27 +220,27 @@ export function UsersPage() {
                     <table className="w-full">
                         <thead>
                             <tr className="border-b bg-primary/10">
-                                <th className="text-left p-4 font-medium">Name</th>
-                                <th className="text-left p-4 font-medium">Email</th>
-                                <th className="text-left p-4 font-medium">Role</th>
-                                <th className="text-left p-4 font-medium">Status</th>
-                                <th className="text-left p-4 font-medium">Created At</th>
-                                <th className="text-right p-4 font-medium">Actions</th>
+                                <th className="text-left px-4 py-2 font-medium">Name</th>
+                                <th className="text-left px-4 py-2 font-medium">Email</th>
+                                <th className="text-left px-4 py-2 font-medium">Role</th>
+                                <th className="text-left px-4 py-2 font-medium">Status</th>
+                                <th className="text-left px-4 py-2 font-medium">Created At</th>
+                                <th className="text-right px-4 py-2 font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {(users || []).map((user) => (
-                                <tr key={user.id} className="border-b">
-                                    <td className="p-4">{user.name}</td>
-                                    <td className="p-4">{user.email}</td>
-                                    <td className="p-4">{user.roleName || 'No Role'}</td>
-                                    <td className="p-4">
+                                <tr key={user.id} className="border-b transition-colors hover:bg-muted/50">
+                                    <td className="px-4 py-2">{user.name}</td>
+                                    <td className="px-4 py-2">{user.email}</td>
+                                    <td className="px-4 py-2">{user.roleName || 'No Role'}</td>
+                                    <td className="px-4 py-2">
                                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
                                             {user.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-muted-foreground">{formatDate(user.createdAt)}</td>
-                                    <td className="p-4 text-right">
+                                    <td className="px-4 py-2 text-muted-foreground">{formatDate(user.createdAt)}</td>
+                                    <td className="px-4 py-2 text-right">
                                         <div className="flex justify-end gap-2">
                                             {canUpdate && (
                                                 <Button variant="outline" size="icon" onClick={() => handleEdit(user)}>

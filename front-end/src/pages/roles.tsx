@@ -94,8 +94,8 @@ export function RolesPage() {
     };
 
     return (
-        <div className="container mx-auto py-8 px-4">
-            <div className="flex items-center justify-between mb-6">
+        <div className="container mx-auto py-6 px-4">
+            <div className="flex items-center justify-between mb-4">
                 <div>
                     <h1 className="text-3xl font-bold">Roles</h1>
                     <p className="text-muted-foreground">Manage user roles and permissions</p>
@@ -106,10 +106,10 @@ export function RolesPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { 
-                            setEditingRole(null); 
-                            reset({ name: '' }); 
-                            setEditModalOpen(true); 
+                        <Button onClick={() => {
+                            setEditingRole(null);
+                            reset({ name: '' });
+                            setEditModalOpen(true);
                         }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Role
@@ -128,17 +128,17 @@ export function RolesPage() {
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b bg-primary/10">
-                                    <th className="text-left p-4 font-medium">Name</th>
-                                    <th className="text-left p-4 font-medium">Permissions</th>
-                                    <th className="text-left p-4 font-medium">Users</th>
-                                    <th className="text-left p-4 font-medium">Created At</th>
-                                    <th className="text-right p-4 font-medium">Actions</th>
+                                    <th className="text-left px-4 py-2 font-medium">Name</th>
+                                    <th className="text-left px-4 py-2 font-medium">Permissions</th>
+                                    <th className="text-left px-4 py-2 font-medium">Users</th>
+                                    <th className="text-left px-4 py-2 font-medium">Created At</th>
+                                    <th className="text-right px-4 py-2 font-medium">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {roles.map((role) => (
-                                    <tr key={role.id} className="border-b">
-                                        <td className="p-4">
+                                    <tr key={role.id} className="border-b transition-colors hover:bg-muted/50">
+                                        <td className="px-4 py-2">
                                             <div className="flex items-center gap-2">
                                                 <Shield className="h-4 w-4 text-muted-foreground" />
                                                 <Link to={`/roles/${role.id}`} className="hover:underline font-medium">
@@ -146,16 +146,16 @@ export function RolesPage() {
                                                 </Link>
                                             </div>
                                         </td>
-                                        <td className="p-4 text-muted-foreground">
+                                        <td className="px-4 py-2 text-muted-foreground">
                                             {role.permissionCount || 0} permissions
                                         </td>
-                                        <td className="p-4 text-muted-foreground">
+                                        <td className="px-4 py-2 text-muted-foreground">
                                             {role.userCount || 0} users
                                         </td>
-                                        <td className="p-4 text-muted-foreground">
+                                        <td className="px-4 py-2 text-muted-foreground">
                                             {formatDate(role.createdAt)}
                                         </td>
-                                        <td className="p-4 text-right">
+                                        <td className="px-4 py-2 text-right">
                                             <div className="flex justify-end gap-2">
                                                 {canUpdate && (
                                                     <Button variant="outline" size="icon" onClick={() => handleEdit(role)}>

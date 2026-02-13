@@ -144,7 +144,7 @@ export function PermissionsPage() {
     return (
         <div className="container mx-auto py-6 px-4">
             {/* Header with Actions */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
                     <h1 className="text-2xl font-bold text-foreground">Permissions</h1>
@@ -155,15 +155,15 @@ export function PermissionsPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { 
-                            setEditingPermission(null); 
+                        <Button onClick={() => {
+                            setEditingPermission(null);
                             reset({
                                 name: '',
                                 resource: '',
                                 action: '',
                                 description: '',
-                            }); 
-                            setShowFormModal(true); 
+                            });
+                            setShowFormModal(true);
                         }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Permission

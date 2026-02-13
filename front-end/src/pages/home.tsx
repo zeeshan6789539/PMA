@@ -12,7 +12,7 @@ export function HomePage() {
     ];
 
     return (
-        <div className="container mx-auto px-4 py-8 animate-fade-in">
+        <div className="container mx-auto px-4 py-6 animate-fade-in">
             <div className="max-w-7xl mx-auto">
                 {/* Hero Section */}
                 <div className="mb-12 text-center">
