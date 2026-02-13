@@ -11,7 +11,7 @@ export type FieldType = 'text' | 'email' | 'password' | 'number' | 'toggle' | 's
 export interface FormFieldProps {
     label: string
     htmlFor?: string
-    inputProps: InputProps | ToggleButtonProps | SelectProps
+    inputProps: any // Changed to any to handle various prop types more flexibly
     className?: string
     labelClassName?: string
     error?: string
@@ -21,71 +21,73 @@ export interface FormFieldProps {
     onTogglePassword?: () => void
 }
 
-interface ToggleButtonProps {
-    isActive: boolean
-    onClick: () => void
-    label?: string
-    disabled?: boolean
-    size?: 'sm' | 'md' | 'lg'
-    className?: string
-    activeClassName?: string
-    inactiveClassName?: string
-}
-
-interface SelectProps {
-    value?: string | number
-    onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void
-    options: { id: string | number; name: string; }[]
-    placeholder?: string
-    disabled?: boolean
-    className?: string
-}
-
 const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
     ({ label, htmlFor, inputProps, className, labelClassName, error, fieldType = 'text', showPasswordToggle, showPassword, onTogglePassword, ...props }, ref) => {
         const isToggle = fieldType === 'toggle'
         const isSelect = fieldType === 'select'
-        const isPassword = (inputProps as InputProps).type === 'password'
         const inputClassName = showPasswordToggle ? "[&_input]:pr-10" : ""
 
         return (
-            <div className={cn("space-y-2", className)} {...props}>
-                <Label
-                    htmlFor={htmlFor}
-                    className={labelClassName}
-                >
-                    {label}
-                </Label>
+            <div className={cn(isToggle ? "" : "space-y-2", className)} {...props}>
                 {isToggle ? (
-                    <ToggleButton
-                        {...(inputProps as ToggleButtonProps)}
-                    />
-                ) : isSelect ? (
-                    <Select
-                        id={htmlFor}
-                        {...(inputProps as SelectProps)}
-                    />
-                ) : (
-                    <div className="relative">
-                        <Input
-                            id={htmlFor}
-                            ref={ref}
-                            {...(inputProps as InputProps)}
-                            className={cn(inputClassName, (inputProps as InputProps).className)}
+                    <div className="flex items-center justify-between py-2">
+                        <Label
+                            htmlFor={htmlFor}
+                            className={cn("text-base font-medium", labelClassName)}
+                        >
+                            {label}
+                        </Label>
+                        <ToggleButton
+                            {...inputProps}
                         />
-                        {showPasswordToggle && (
-                            <button
-                                type="button"
-                                onClick={onTogglePassword}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                            >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                        )}
                     </div>
+                ) : (
+                    <>
+                        <Label
+                            htmlFor={htmlFor}
+                            className={labelClassName}
+                        >
+                            {label}
+                        </Label>
+                        {isSelect ? (
+                            <Select
+                                id={htmlFor}
+                                options={inputProps.options}
+                                placeholder={inputProps.placeholder}
+                                value={inputProps.value} // Crucial: pass the current value
+                                onChange={(value) => {
+                                    if (inputProps.onChange) {
+                                        // Create a synthetic event or call the handler directly
+                                        inputProps.onChange(value);
+                                    }
+                                }}
+                                disabled={inputProps.disabled}
+                                className={inputProps.className}
+                                error={error}
+                            />
+                        ) : (
+                            <div className="relative">
+                                <Input
+                                    id={htmlFor}
+                                    ref={ref}
+                                    {...inputProps}
+                                    className={cn(inputClassName, inputProps.className)}
+                                />
+                                {showPasswordToggle && (
+                                    <button
+                                        type="button"
+                                        onClick={onTogglePassword}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </>
                 )}
                 {error && (
-                    <p className="text-sm text-red-500">{error}</p>
+                    <p className="text-sm text-destructive">{error}</p>
                 )}
             </div>
         )

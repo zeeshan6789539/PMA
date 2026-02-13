@@ -2,24 +2,50 @@ import { Moon, Sun, LogOut, Key } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { successToastOptions } from '@/lib/toast-styles';
+import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { FormField } from '@/components/ui/form-field';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { changePasswordSchema, type ChangePasswordInput } from '@/lib/validation/schemas';
+import { Loader2 } from 'lucide-react';
 
 export function ProfilePage() {
     const { theme, setTheme } = useTheme();
-    const { user, logout } = useAuth();
-    const { showSuccess } = useToast();
+    const { user, logout, changePassword } = useAuth();
+    const { showSuccess, showError } = useToast();
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<ChangePasswordInput>({
+        resolver: zodResolver(changePasswordSchema),
+    });
+
+    const newPassword = watch('newPassword', '');
+
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
+    };
+
+    const onSubmit = async (data: ChangePasswordInput) => {
+        try {
+            await changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword });
+            showSuccess('Password changed successfully!', successToastOptions);
+            setIsPasswordModalOpen(false);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to change password';
+            showError(errorMessage, errorToastOptions);
+        }
     };
 
     const getInitials = (name: string) => {
@@ -96,17 +122,19 @@ export function ProfilePage() {
                 onOpenChange={setIsPasswordModalOpen}
                 title="Change Password"
             >
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setIsPasswordModalOpen(false); }}>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         label="Current Password"
                         htmlFor="current-password"
                         inputProps={{
                             type: showCurrentPassword ? 'text' : 'password',
                             placeholder: 'Enter current password',
+                            ...register('currentPassword'),
                         }}
                         showPasswordToggle
                         showPassword={showCurrentPassword}
                         onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
+                        error={errors.currentPassword?.message}
                     />
                     <FormField
                         label="New Password"
@@ -114,10 +142,12 @@ export function ProfilePage() {
                         inputProps={{
                             type: showNewPassword ? 'text' : 'password',
                             placeholder: 'Enter new password',
+                            ...register('newPassword'),
                         }}
                         showPasswordToggle
                         showPassword={showNewPassword}
                         onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+                        error={errors.newPassword?.message}
                     />
                     <FormField
                         label="Confirm Password"
@@ -125,16 +155,19 @@ export function ProfilePage() {
                         inputProps={{
                             type: showConfirmPassword ? 'text' : 'password',
                             placeholder: 'Confirm new password',
+                            ...register('confirmPassword'),
                         }}
                         showPasswordToggle
                         showPassword={showConfirmPassword}
                         onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                        error={errors.confirmPassword?.message}
                     />
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="outline" onClick={() => setIsPasswordModalOpen(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit">
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                             Change Password
                         </Button>
                     </div>

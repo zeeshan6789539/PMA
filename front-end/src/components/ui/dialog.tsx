@@ -35,24 +35,24 @@ export function Dialog({ open, onOpenChange, title, children }: DialogProps) {
         <div className="fixed inset-0 z-50">
             <div
                 ref={overlayRef}
-                className="fixed inset-0 bg-black/50 animate-in fade-in duration-200"
+                className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                 onClick={() => onOpenChange(false)}
             />
             <div className="fixed inset-0 flex items-center justify-center p-4">
                 <div
-                    className="relative w-full max-w-md bg-background rounded-lg shadow-lg animate-in zoom-in-95 duration-200"
+                    className="relative w-full max-w-md glass-card border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 animate-in zoom-in-95 duration-200"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex items-center justify-between p-4 border-b">
-                        <h2 className="text-lg font-semibold">{title}</h2>
+                    <div className="flex items-center justify-between p-6 border-b border-border/50">
+                        <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{title}</h2>
                         <button
                             onClick={() => onOpenChange(false)}
-                            className="p-1 rounded-md hover:bg-muted transition-colors"
+                            className="p-2 rounded-lg hover:bg-muted/50 transition-all duration-300 hover:scale-110 hover:rotate-90"
                         >
                             <X className="h-5 w-5" />
                         </button>
                     </div>
-                    <div className="p-4">{children}</div>
+                    <div className="p-6">{children}</div>
                 </div>
             </div>
         </div>

@@ -1,7 +1,8 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router';
 import { formatDate } from '@/lib/helper';
-import type { CreateRoleRequest } from '@/hooks/use-roles';
 import type { Role } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -13,11 +14,11 @@ import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { useRoles, useCreateRole, useUpdateRole, useDeleteRole } from '@/hooks/use-roles';
+import { createRoleSchema, updateRoleSchema, type CreateRoleInput, type UpdateRoleInput } from '@/lib/validation/schemas';
 
 export function RolesPage() {
     const { showSuccess, showError } = useToast();
     const [editingRole, setEditingRole] = useState<Role | null>(null);
-    const [formData, setFormData] = useState<CreateRoleRequest>({ name: '' });
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -35,20 +36,31 @@ export function RolesPage() {
     const roles = rolesData || [];
     const isLoading = rolesLoading || createRoleMutation.isPending || updateRoleMutation.isPending || deleteRoleMutation.isPending;
 
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<CreateRoleInput | UpdateRoleInput>({
+        resolver: zodResolver(editingRole ? updateRoleSchema : createRoleSchema),
+        defaultValues: {
+            name: '',
+        },
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+
+    const onSubmit = async (data: CreateRoleInput | UpdateRoleInput) => {
         try {
             if (editingRole) {
-                await updateRoleMutation.mutateAsync({ id: editingRole.id, data: formData });
+                await updateRoleMutation.mutateAsync({ id: editingRole.id, data: data as UpdateRoleInput });
                 showSuccess('Role updated successfully', successToastOptions);
             } else {
-                await createRoleMutation.mutateAsync(formData);
+                await createRoleMutation.mutateAsync(data as CreateRoleInput);
                 showSuccess('Role created successfully', successToastOptions);
             }
             setEditModalOpen(false);
             setEditingRole(null);
-            setFormData({ name: '' });
+            reset();
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save role';
             showError(message, errorToastOptions);
@@ -57,7 +69,7 @@ export function RolesPage() {
 
     const handleEdit = (role: Role) => {
         setEditingRole(role);
-        setFormData({ name: role.name });
+        reset({ name: role.name });
         setEditModalOpen(true);
     };
 
@@ -94,7 +106,11 @@ export function RolesPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setEditingRole(null); setFormData({ name: '' }); setEditModalOpen(true); }}>
+                        <Button onClick={() => { 
+                            setEditingRole(null); 
+                            reset({ name: '' }); 
+                            setEditModalOpen(true); 
+                        }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Role
                         </Button>
@@ -111,7 +127,7 @@ export function RolesPage() {
                     <CardContent className="p-0">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b bg-muted/50">
+                                <tr className="border-b bg-primary/10">
                                     <th className="text-left p-4 font-medium">Name</th>
                                     <th className="text-left p-4 font-medium">Permissions</th>
                                     <th className="text-left p-4 font-medium">Users</th>
@@ -179,31 +195,34 @@ export function RolesPage() {
 
             <Dialog
                 open={editModalOpen}
-                onOpenChange={setEditModalOpen}
+                onOpenChange={(open) => {
+                    setEditModalOpen(open);
+                    if (!open) {
+                        setEditingRole(null);
+                        reset();
+                    }
+                }}
                 title={editingRole ? 'Edit Role' : 'Create Role'}
             >
-                <div className="p-4">
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <FormField
-                            label="Role Name"
-                            htmlFor="name"
-                            inputProps={{
-                                value: formData.name,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value }),
-                                required: true,
-                            }}
-                        />
-                        <div className="flex gap-2">
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                                {editingRole ? 'Update' : 'Create'}
-                            </Button>
-                            <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
-                                Cancel
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4">
+                    <FormField
+                        label="Role Name"
+                        htmlFor="name"
+                        inputProps={{
+                            ...register('name'),
+                        }}
+                        error={errors.name?.message}
+                    />
+                    <div className="flex gap-2">
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                            {editingRole ? 'Update' : 'Create'}
+                        </Button>
+                        <Button type="button" variant="outline" onClick={() => { setEditModalOpen(false); setEditingRole(null); reset(); }}>
+                            Cancel
+                        </Button>
+                    </div>
+                </form>
             </Dialog>
         </div>
     );

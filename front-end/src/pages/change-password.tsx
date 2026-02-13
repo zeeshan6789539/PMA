@@ -1,5 +1,7 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
@@ -8,16 +10,27 @@ import { FormField } from '@/components/ui/form-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { changePasswordSchema, type ChangePasswordInput } from '@/lib/validation/schemas';
 
 export function ChangePasswordPage() {
     const navigate = useNavigate();
     const { changePassword, isAuthenticated, logout } = useAuth();
     const { showSuccess, showError } = useToast();
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [success, setSuccess] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<ChangePasswordInput>({
+        resolver: zodResolver(changePasswordSchema),
+    });
+
+    const newPassword = watch('newPassword', '');
 
     if (!isAuthenticated) {
         navigate('/login');
@@ -33,28 +46,14 @@ export function ChangePasswordPage() {
 
     const allRequirementsMet = passwordRequirements.every((req) => req.met);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const onSubmit = async (data: ChangePasswordInput) => {
         if (!allRequirementsMet) {
             showError('New password does not meet requirements', errorToastOptions);
             return;
         }
 
-        if (newPassword !== confirmPassword) {
-            showError('Passwords do not match', errorToastOptions);
-            return;
-        }
-
-        if (currentPassword === newPassword) {
-            showError('New password must be different from current password', errorToastOptions);
-            return;
-        }
-
-        setIsLoading(true);
-
         try {
-            await changePassword({ currentPassword, newPassword });
+            await changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword });
             setSuccess(true);
             showSuccess('Password changed successfully! Please log in again.', successToastOptions);
             setTimeout(() => {
@@ -64,8 +63,6 @@ export function ChangePasswordPage() {
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to change password. Please try again.';
             showError(errorMessage, errorToastOptions);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -103,32 +100,36 @@ export function ChangePasswordPage() {
                         Enter your current password and a new one
                     </CardDescription>
                 </CardHeader>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <CardContent className="space-y-4">
                         <FormField
                             label="Current Password"
                             htmlFor="currentPassword"
                             inputProps={{
-                                type: "password",
+                                type: showCurrentPassword ? 'text' : 'password',
                                 placeholder: "Enter your current password",
-                                value: currentPassword,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value),
-                                required: true,
-                                disabled: isLoading,
+                                ...register('currentPassword'),
+                                disabled: isSubmitting,
                             }}
+                            showPasswordToggle
+                            showPassword={showCurrentPassword}
+                            onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
+                            error={errors.currentPassword?.message}
                         />
                         <div className="space-y-2">
                             <FormField
                                 label="New Password"
                                 htmlFor="newPassword"
                                 inputProps={{
-                                    type: "password",
+                                    type: showNewPassword ? 'text' : 'password',
                                     placeholder: "Enter new password",
-                                    value: newPassword,
-                                    onChange: (e: ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value),
-                                    required: true,
-                                    disabled: isLoading,
+                                    ...register('newPassword'),
+                                    disabled: isSubmitting,
                                 }}
+                                showPasswordToggle
+                                showPassword={showNewPassword}
+                                onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+                                error={errors.newPassword?.message}
                             />
                             {newPassword && (
                                 <div className="space-y-1 mt-2">
@@ -149,18 +150,20 @@ export function ChangePasswordPage() {
                             label="Confirm New Password"
                             htmlFor="confirmPassword"
                             inputProps={{
-                                type: "password",
+                                type: showConfirmPassword ? 'text' : 'password',
                                 placeholder: "Confirm new password",
-                                value: confirmPassword,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value),
-                                required: true,
-                                disabled: isLoading,
+                                ...register('confirmPassword'),
+                                disabled: isSubmitting,
                             }}
+                            showPasswordToggle
+                            showPassword={showConfirmPassword}
+                            onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                            error={errors.confirmPassword?.message}
                         />
                     </CardContent>
                     <div className="px-6 pb-6">
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? (
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Changing password...

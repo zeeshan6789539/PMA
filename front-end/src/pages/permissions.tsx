@@ -1,6 +1,8 @@
-import { useState, useMemo, type ChangeEvent } from 'react';
+import { useState, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDate } from '@/lib/helper';
-import { type CreatePermissionRequest, type PermissionResponse } from '@/hooks/use-permissions';
+import { type PermissionResponse } from '@/hooks/use-permissions';
 import { useToast } from '@/hooks/use-toast';
 import { successToastOptions, errorToastOptions } from '@/lib/toast-styles';
 import { Button } from '@/components/ui/button';
@@ -11,6 +13,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock, ChevronDown, ChevronRight, Shield } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { usePermissions, useCreatePermission, useUpdatePermission, useDeletePermission } from '@/hooks/use-permissions';
+import { createPermissionSchema, updatePermissionSchema, type CreatePermissionInput, type UpdatePermissionInput } from '@/lib/validation/schemas';
 
 interface PermissionGroup {
     resource: string;
@@ -23,12 +26,6 @@ export function PermissionsPage() {
     const [showFormModal, setShowFormModal] = useState(false);
     const [permissionToDelete, setPermissionToDelete] = useState<PermissionResponse | null>(null);
     const [editingPermission, setEditingPermission] = useState<PermissionResponse | null>(null);
-    const [formData, setFormData] = useState<CreatePermissionRequest>({
-        name: '',
-        resource: '',
-        action: '',
-        description: '',
-    });
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const { hasPermission } = useAuth();
 
@@ -44,29 +41,41 @@ export function PermissionsPage() {
     const permissions = permissionsData || [];
     const isSaving = createPermissionMutation.isPending || updatePermissionMutation.isPending || deletePermissionMutation.isPending;
 
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<CreatePermissionInput | UpdatePermissionInput>({
+        resolver: zodResolver(editingPermission ? updatePermissionSchema : createPermissionSchema),
+        defaultValues: {
+            name: '',
+            resource: '',
+            action: '',
+            description: '',
+        },
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const watchedResource = watch('resource', '');
+    const watchedAction = watch('action', '');
 
-        // Client-side validation
-        if (!formData.resource || !formData.action) {
-            showError('Resource and Action are required', errorToastOptions);
-            return;
-        }
 
+    const onSubmit = async (data: CreatePermissionInput | UpdatePermissionInput) => {
         // Auto-generate name from resource and action
-        const generatedName = `${formData.resource}.${formData.action}`;
+        const generatedName = `${data.resource}.${data.action}`;
+        const finalData = { ...data, name: generatedName };
 
         try {
             if (editingPermission) {
-                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: { ...formData, name: generatedName } });
+                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: finalData as unknown as UpdatePermissionInput as any });
                 showSuccess('Permission updated successfully', successToastOptions);
             } else {
-                await createPermissionMutation.mutateAsync({ ...formData, name: generatedName });
+                await createPermissionMutation.mutateAsync(finalData as CreatePermissionInput);
                 showSuccess('Permission created successfully', successToastOptions);
             }
             setEditingPermission(null);
-            setFormData({ name: '', resource: '', action: '', description: '' });
+            reset();
             setShowFormModal(false);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Failed to save permission';
@@ -75,16 +84,11 @@ export function PermissionsPage() {
     };
 
     const handleEdit = (permission: PermissionResponse) => {
-        // Parse name (format: resource.action) into separate fields
-        const nameParts = permission.name.split('.');
-        const resource = nameParts[0] || '';
-        const action = nameParts[1] || '';
-
         setEditingPermission(permission);
-        setFormData({
+        reset({
             name: permission.name,
-            resource,
-            action,
+            resource: permission.resource,
+            action: permission.action,
             description: permission.description || '',
         });
         setShowFormModal(true);
@@ -151,7 +155,16 @@ export function PermissionsPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { setEditingPermission(null); setFormData({ name: '', resource: '', action: '', description: '' }); setShowFormModal(true); }}>
+                        <Button onClick={() => { 
+                            setEditingPermission(null); 
+                            reset({
+                                name: '',
+                                resource: '',
+                                action: '',
+                                description: '',
+                            }); 
+                            setShowFormModal(true); 
+                        }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Permission
                         </Button>
@@ -161,7 +174,7 @@ export function PermissionsPage() {
 
             {/* Permissions List */}
             <Card className="border-border shadow-sm">
-                <CardHeader className="border-b bg-secondary/50 py-4">
+                <CardHeader className="border-b bg-primary/10 py-4">
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Lock className="h-5 w-5 text-primary" />
@@ -230,39 +243,41 @@ export function PermissionsPage() {
             {/* Create/Edit Permission Modal */}
             <Dialog
                 open={showFormModal}
-                onOpenChange={setShowFormModal}
+                onOpenChange={(open) => {
+                    setShowFormModal(open);
+                    if (!open) {
+                        setEditingPermission(null);
+                        reset();
+                    }
+                }}
                 title={editingPermission ? 'Edit Permission' : 'Create Permission'}
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <FormField
                             label="Resource"
                             htmlFor="resource"
                             inputProps={{
-                                value: formData.resource,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, resource: e.target.value }),
-                                required: true,
+                                ...register('resource'),
                                 placeholder: "e.g., users",
                             }}
+                            error={errors.resource?.message}
                         />
                         <FormField
                             label="Action"
                             htmlFor="action"
                             inputProps={{
-                                value: formData.action,
-                                onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, action: e.target.value }),
-                                required: true,
+                                ...register('action'),
                                 placeholder: "e.g., create",
                             }}
+                            error={errors.action?.message}
                         />
                     </div>
                     <FormField
                         label="Permission Name"
                         htmlFor="name"
                         inputProps={{
-                            value: formData.name,
-                            onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value }),
-                            required: true,
+                            value: `${watchedResource}.${watchedAction}`,
                             placeholder: "Auto-generated (e.g., users.create)",
                             readOnly: true,
                             className: "bg-muted",
@@ -273,17 +288,17 @@ export function PermissionsPage() {
                         label="Description"
                         htmlFor="description"
                         inputProps={{
-                            value: formData.description,
-                            onChange: (e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, description: e.target.value }),
+                            ...register('description'),
                             placeholder: "Brief description of this permission",
                         }}
+                        error={errors.description?.message}
                     />
                     <div className="flex justify-end gap-2 pt-4">
-                        <Button type="button" variant="outline" onClick={() => setShowFormModal(false)}>
+                        <Button type="button" variant="outline" onClick={() => { setShowFormModal(false); setEditingPermission(null); reset(); }}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isSaving}>
-                            {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                             {editingPermission ? 'Update' : 'Create'}
                         </Button>
                     </div>
