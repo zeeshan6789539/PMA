@@ -21,6 +21,7 @@ export interface LoginRequest {
 export interface LoginResponse {
     user: User;
     token: string;
+    refreshToken: string;
     role: Role;
     permissions: Permissions;
 }
@@ -73,6 +74,9 @@ const authApi = {
 
     changePassword: (data: ChangePasswordRequest) =>
         api.post<ApiResponse<void>>('/auth/change-password', data),
+
+    refreshToken: (refreshToken: string) =>
+        api.post<ApiResponse<{ token: string }>>('/auth/refresh-token', { refreshToken }),
 };
 
 interface AuthContextType {
@@ -127,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (data: LoginRequest) => {
         const response = await authApi.login(data);
-        const { user: userData, token: userToken, role, permissions: _ } = response.data.data;
+        const { user: userData, token: userToken, refreshToken, role, permissions: _ } = response.data.data;
 
         // Extract permissions from role.permissions (backend returns permissions nested in role)
         const userPermissions = role?.permissions || null;
@@ -135,6 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('token', userToken);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('permissions', JSON.stringify(userPermissions));
+        if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+        }
 
         setUser(userData);
         setToken(userToken);
@@ -153,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('permissions');
+        localStorage.removeItem('refreshToken');
         setUser(null);
         setToken(null);
         setPermissions(null);

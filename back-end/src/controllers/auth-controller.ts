@@ -5,6 +5,7 @@ import { asyncHandler } from '@/middleware/error-handler';
 import { UnauthorizedError } from '@/middleware/error-handler';
 import { gethashedpassword, comparePassword } from '@/utils/helper';
 import { userService, roleService } from '@/services';
+import type { JwtPayload } from '@/middleware/auth';
 
 export const signup = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -50,10 +51,21 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   if (!secret) throw new Error('JWT_SECRET is not configured');
 
   const expiresInSeconds = Number(process.env.JWT_EXPIRES_IN) || 7 * 24 * 60 * 60;
+  const refreshExpiresInSeconds = Number(process.env.JWT_REFRESH_EXPIRES_IN) || 30 * 24 * 60 * 60;
+  
   const token = jwt.sign(
     { id: user.id, email: user.email },
     secret,
     { expiresIn: expiresInSeconds }
+  );
+
+  const refreshSecret = process.env.JWT_REFRESH_SECRET;
+  if (!refreshSecret) throw new Error('JWT_REFRESH_SECRET is not configured');
+  
+  const refreshToken = jwt.sign(
+    { id: user.id, email: user.email },
+    refreshSecret,
+    { expiresIn: refreshExpiresInSeconds }
   );
 
   const { password: _, ...userWithoutPassword } = user;
@@ -68,6 +80,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     user: userWithoutPassword,
     role,
     token,
+    refreshToken,
   });
 });
 
@@ -98,4 +111,50 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
   await userService.update(user.id, { password: hashedPassword });
 
   return ResponseHandler.success(res, 'Password changed successfully');
+});
+
+/** Refresh access token using refresh token */
+export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return ResponseHandler.error(res, 'Refresh token is required', 400);
+  }
+
+  const refreshSecret = process.env.JWT_REFRESH_SECRET;
+  if (!refreshSecret) throw new Error('JWT_REFRESH_SECRET is not configured');
+
+  try {
+    const decoded = jwt.verify(refreshToken, refreshSecret) as JwtPayload;
+    
+    const user = await userService.findByEmail(decoded.email);
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedError('Account is deactivated');
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT_SECRET is not configured');
+
+    const expiresInSeconds = Number(process.env.JWT_EXPIRES_IN) || 7 * 24 * 60 * 60;
+    const newToken = jwt.sign(
+      { id: user.id, email: user.email },
+      secret,
+      { expiresIn: expiresInSeconds }
+    );
+
+    return ResponseHandler.success(res, 'Token refreshed successfully', {
+      token: newToken,
+    });
+  } catch (err) {
+    if (err instanceof jwt.TokenExpiredError) {
+      throw new UnauthorizedError('Refresh token expired');
+    } else if (err instanceof jwt.JsonWebTokenError) {
+      throw new UnauthorizedError('Invalid refresh token');
+    }
+    throw err;
+  }
 });

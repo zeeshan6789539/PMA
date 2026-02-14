@@ -19,6 +19,9 @@ const authApi = {
 
     changePassword: (data: ChangePasswordRequest) =>
         api.post<ApiResponse<void>>('/auth/change-password', data),
+
+    refreshToken: (refreshToken: string) =>
+        api.post<ApiResponse<{ token: string }>>('/auth/refresh-token', { refreshToken }),
 };
 
 export const useLogin = () => {
@@ -27,11 +30,14 @@ export const useLogin = () => {
     return useMutation({
         mutationFn: (data: LoginRequest) => authApi.login(data),
         onSuccess: (response) => {
-            const { user, token, role, permissions } = response.data?.data || {};
+            const { user, token, refreshToken, permissions } = response.data?.data || {};
             if (token) {
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(user));
                 localStorage.setItem('permissions', JSON.stringify(permissions));
+                if (refreshToken) {
+                    localStorage.setItem('refreshToken', refreshToken);
+                }
             }
             queryClient.invalidateQueries({ queryKey: ['auth'] });
         },

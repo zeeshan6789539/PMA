@@ -60,6 +60,13 @@ export const authValidations = {
     bodyPassword(),
   ],
   login: [bodyEmail(), bodyRequiredPassword()],
+  refreshToken: [
+    body('refreshToken')
+      .notEmpty()
+      .withMessage('Refresh token is required')
+      .isJWT()
+      .withMessage('Invalid refresh token format'),
+  ],
   changePassword: [
     body('currentPassword').notEmpty().withMessage('Current password is required'),
     body('newPassword')

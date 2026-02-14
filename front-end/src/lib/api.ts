@@ -113,7 +113,7 @@ api.interceptors.response.use(
 
         return response;
     },
-    (error: AxiosError<ApiErrorResponse>) => {
+    async (error: AxiosError<ApiErrorResponse>) => {
         const config = error.config as CustomAxiosRequestConfig;
         
         // Calculate request duration
@@ -139,12 +139,45 @@ api.interceptors.response.use(
         // Create typed error
         const apiError = new ApiErrorImpl(errorMessage, status, errorCode, errorData);
 
-        // Handle specific error cases
-        if (status === 401) {
-            // Unauthorized - clear auth data and redirect to login
+        // Handle 401 errors with token refresh logic
+        if (status === 401 && !config?._retryCount) {
+            const refreshToken = localStorage.getItem('refreshToken');
+            
+            if (refreshToken && !config?.url?.includes('/refresh-token')) {
+                try {
+                    // Set retry count to prevent infinite loops
+                    config._retryCount = (config._retryCount || 0) + 1;
+                    
+                    // Attempt to refresh the token
+                    const refreshResponse = await axios.post<ApiResponse<{ token: string }>>(
+                        `${api.defaults.baseURL}/auth/refresh-token`,
+                        { refreshToken },
+                        { headers: { 'Content-Type': 'application/json' } }
+                    );
+                    
+                    const newToken = refreshResponse.data.data?.token;
+                    if (newToken) {
+                        // Update stored token
+                        localStorage.setItem('token', newToken);
+                        
+                        // Update the authorization header for the original request
+                        if (config.headers) {
+                            config.headers.Authorization = `Bearer ${newToken}`;
+                        }
+                        
+                        // Retry the original request
+                        return api(config);
+                    }
+                } catch (refreshError) {
+                    console.error('Token refresh failed:', refreshError);
+                }
+            }
+            
+            // If refresh failed or no refresh token, clear auth data and redirect
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             localStorage.removeItem('permissions');
+            localStorage.removeItem('refreshToken');
 
             if (!window.location.pathname.includes('/login')) {
                 window.location.href = '/login';
@@ -158,6 +191,7 @@ api.interceptors.response.use(
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 localStorage.removeItem('permissions');
+                localStorage.removeItem('refreshToken');
                 window.location.href = '/login';
             }
         }
