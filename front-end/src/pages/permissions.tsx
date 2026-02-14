@@ -14,6 +14,7 @@ import { Loader2, Plus, Pencil, Trash2, RefreshCw, Lock, ChevronDown, ChevronRig
 import { useAuth } from '@/context/auth-context';
 import { usePermissions, useCreatePermission, useUpdatePermission, useDeletePermission } from '@/hooks/use-permissions';
 import { createPermissionSchema, updatePermissionSchema, type CreatePermissionInput, type UpdatePermissionInput } from '@/lib/validation/schemas';
+import type { CreatePermissionRequest } from '@/hooks/use-permissions';
 
 interface PermissionGroup {
     resource: string;
@@ -46,6 +47,7 @@ export function PermissionsPage() {
         handleSubmit,
         reset,
         watch,
+        setValue,
         formState: { errors, isSubmitting },
     } = useForm<CreatePermissionInput | UpdatePermissionInput>({
         resolver: zodResolver(editingPermission ? updatePermissionSchema : createPermissionSchema),
@@ -60,6 +62,14 @@ export function PermissionsPage() {
     const watchedResource = watch('resource', '');
     const watchedAction = watch('action', '');
 
+    // Auto-generate name when resource or action changes
+    useMemo(() => {
+        if (watchedResource && watchedAction) {
+            const generatedName = `${watchedResource}.${watchedAction}`;
+            setValue('name', generatedName);
+        }
+    }, [watchedResource, watchedAction, setValue]);
+
 
     const onSubmit = async (data: CreatePermissionInput | UpdatePermissionInput) => {
         // Auto-generate name from resource and action
@@ -68,10 +78,10 @@ export function PermissionsPage() {
 
         try {
             if (editingPermission) {
-                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: finalData as unknown as UpdatePermissionInput as any });
+                await updatePermissionMutation.mutateAsync({ id: editingPermission.id, data: finalData as UpdatePermissionInput });
                 showSuccess('Permission updated successfully', successToastOptions);
             } else {
-                await createPermissionMutation.mutateAsync(finalData as CreatePermissionInput);
+                await createPermissionMutation.mutateAsync(finalData as CreatePermissionRequest);
                 showSuccess('Permission created successfully', successToastOptions);
             }
             setEditingPermission(null);
@@ -144,7 +154,7 @@ export function PermissionsPage() {
     return (
         <div className="container mx-auto py-6 px-4">
             {/* Header with Actions */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
                     <h1 className="text-2xl font-bold text-foreground">Permissions</h1>
@@ -155,15 +165,15 @@ export function PermissionsPage() {
                         Refresh
                     </Button>
                     {canCreate && (
-                        <Button onClick={() => { 
-                            setEditingPermission(null); 
+                        <Button onClick={() => {
+                            setEditingPermission(null);
                             reset({
                                 name: '',
                                 resource: '',
                                 action: '',
                                 description: '',
-                            }); 
-                            setShowFormModal(true); 
+                            });
+                            setShowFormModal(true);
                         }}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Permission
@@ -277,11 +287,12 @@ export function PermissionsPage() {
                         label="Permission Name"
                         htmlFor="name"
                         inputProps={{
-                            value: `${watchedResource}.${watchedAction}`,
+                            ...register('name'),
                             placeholder: "Auto-generated (e.g., users.create)",
                             readOnly: true,
                             className: "bg-muted",
                         }}
+                        error={errors.name?.message}
                     />
                     <p className="text-xs text-muted-foreground">Permission name is automatically generated from resource and action</p>
                     <FormField
